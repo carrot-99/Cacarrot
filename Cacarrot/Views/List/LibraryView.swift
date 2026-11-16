@@ -12,12 +12,20 @@ struct LibraryView: View {
         var id: Self { self }
     }
 
+    enum SortOrder: String, CaseIterable, Identifiable {
+        case newest = "新しい順"
+        case oldest = "古い順"
+        case title = "タイトル順"
+        var id: Self { self }
+    }
+
     @Environment(SwipeDeckViewModel.self) private var deck
     @Query(filter: SwipeRecord.likedPredicate,
            sort: \SwipeRecord.createdAt, order: .reverse)
     private var records: [SwipeRecord]
 
     @State private var filter: Filter = .all
+    @AppStorage("librarySortOrder") private var sortOrder: SortOrder = .newest
     @State private var searchText = ""
     @State private var selected: SwipeRecord?
 
@@ -35,6 +43,13 @@ struct LibraryView: View {
                 || record.author.localizedCaseInsensitiveContains(searchText)
                 || record.genres.contains { $0.localizedCaseInsensitiveContains(searchText) }
         }
+        .sorted { lhs, rhs in
+            switch sortOrder {
+            case .newest: lhs.createdAt > rhs.createdAt
+            case .oldest: lhs.createdAt < rhs.createdAt
+            case .title: lhs.title.localizedStandardCompare(rhs.title) == .orderedAscending
+            }
+        }
     }
 
     var body: some View {
@@ -49,6 +64,19 @@ struct LibraryView: View {
                 }
             }
             .navigationTitle("お気に入り")
+            .toolbar {
+                if !records.isEmpty {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Menu {
+                            Picker("並び順", selection: $sortOrder) {
+                                ForEach(SortOrder.allCases) { Text($0.rawValue).tag($0) }
+                            }
+                        } label: {
+                            Label("並び順", systemImage: "arrow.up.arrow.down")
+                        }
+                    }
+                }
+            }
             .sheet(item: $selected) { record in
                 MangaDetailView(manga: record.manga, action: record.action)
             }
@@ -76,16 +104,39 @@ struct LibraryView: View {
                 }
                 .buttonStyle(.plain)
                 .swipeActions(edge: .trailing) {
-                    Button(role: .destructive) {
-                        withAnimation { deck.forget(mangaID: record.mangaID) }
-                    } label: {
-                        Label("削除", systemImage: "trash")
-                    }
+                    deleteButton(record)
+                }
+                .swipeActions(edge: .leading) {
+                    toggleRatingButton(record)
+                }
+                .contextMenu {
+                    toggleRatingButton(record)
+                    deleteButton(record)
                 }
             }
         }
         .searchable(text: $searchText, prompt: "タイトル・作者・ジャンル")
         .animation(.default, value: filter)
+        .animation(.default, value: sortOrder)
+    }
+
+    /// いいね ⇄ スーパーいいね を切り替える
+    private func toggleRatingButton(_ record: SwipeRecord) -> some View {
+        let target: SwipeAction = record.action == .superLike ? .like : .superLike
+        return Button {
+            withAnimation { deck.changeAction(mangaID: record.mangaID, to: target) }
+        } label: {
+            Label(target == .superLike ? "スーパーいいねにする" : "いいねにする", systemImage: target.systemImage)
+        }
+        .tint(target.color)
+    }
+
+    private func deleteButton(_ record: SwipeRecord) -> some View {
+        Button(role: .destructive) {
+            withAnimation { deck.forget(mangaID: record.mangaID) }
+        } label: {
+            Label("削除", systemImage: "trash")
+        }
     }
 }
 

@@ -47,6 +47,13 @@ final class SwipeHistoryStore {
         try save()
     }
 
+    /// 判定だけを変更する（判定した日時は変えないので、お気に入りの並び順は保たれる）
+    func updateAction(mangaID: Int, to action: SwipeAction) throws {
+        guard let record = find(mangaID: mangaID), record.action != action else { return }
+        record.action = action
+        try save()
+    }
+
     func remove(mangaID: Int) throws {
         guard let record = find(mangaID: mangaID) else { return }
         context.delete(record)

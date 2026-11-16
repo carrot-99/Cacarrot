@@ -97,7 +97,7 @@ flowchart TD
 | 判定 | `swipe(_:)` | カードを画面外へ飛ばし、アニメーションが終わったら `commit` で保存してデッキから外す |
 | 取り消し | `undo()` | 直前の判定を取り消してカードを一番上に戻す。デッキを作るとき、保存済みの判定の新しい順から最大20件を取り消し履歴として復元するので、再起動後も取り消せる |
 | エラー | `errorMessage` | 保存に失敗したときのメッセージ。`ContentView` がアラートで表示する。判定の保存に失敗したカードは元の位置に戻す |
-| 管理 | `restoreSkipped()` / `resetAll()` / `forget(mangaID:)` | スキップを戻す、すべて消す、お気に入りから外してデッキの最後に戻す |
+| 管理 | `restoreSkipped()` / `resetAll()` / `forget(mangaID:)` / `changeAction(mangaID:to:)` | スキップを戻す、すべて消す、お気に入りから外してデッキの最後に戻す、判定を変える（日時は保つ） |
 | 表示 | `stampOpacity(for:)` | GOOD / NOPE / SUPER スタンプの濃さ |
 | おすすめ | `isRecommendationEnabled` | おすすめ順のオン・オフ。UserDefaults に保存。切り替えると、見えている上の3枚以外を並べ直す |
 | 先読み | （内部）`prefetchUpcoming()` | デッキを作ったとき・判定のたびに、上から6枚の表紙を先読みする |
