@@ -73,6 +73,15 @@ struct ProfileView: View {
                 }
 
                 Section {
+                    @Bindable var deck = deck
+                    Toggle(isOn: $deck.isRecommendationEnabled) {
+                        Label("おすすめ順で表示", systemImage: "sparkles")
+                    }
+                } footer: {
+                    Text("いいねした作品のジャンルをもとに、好みに近い作品を先に表示します。オフにするとランダムな順番になります。")
+                }
+
+                Section {
                     Button("スキップした作品をデッキに戻す") { deck.restoreSkipped() }
                         .disabled(count(.nope) == 0)
                     Button("すべての履歴をリセット", role: .destructive) { isConfirmingReset = true }
@@ -80,6 +89,19 @@ struct ProfileView: View {
                 } footer: {
                     Text("リセットすると、お気に入りを含むすべての判定が削除されます。")
                 }
+
+                Section("データ提供") {
+                    if deck.usesRakutenData {
+                        // 楽天ウェブサービスの規約で求められるクレジット表記
+                        Link("Supported by Rakuten Developers",
+                             destination: URL(string: "https://webservice.rakuten.co.jp/")!)
+                        LabeledContent("作品情報・表紙", value: "楽天ブックス")
+                        LabeledContent("ジャンル", value: "AniList")
+                    } else {
+                        LabeledContent("作品情報・表紙", value: "AniList")
+                    }
+                }
+                .font(.footnote)
             }
             .navigationTitle("マイページ")
             .confirmationDialog("すべての履歴をリセットしますか？",

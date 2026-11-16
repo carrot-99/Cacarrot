@@ -18,6 +18,12 @@ final class SwipeHistoryStore {
         return Set(records.map(\.mangaID))
     }
 
+    /// おすすめ順の計算に使う判定履歴（ジャンルと判定のみ）
+    func history() -> [(genres: [String], action: SwipeAction)] {
+        let records = (try? context.fetch(FetchDescriptor<SwipeRecord>())) ?? []
+        return records.map { ($0.genres, $0.action) }
+    }
+
     func record(_ manga: Manga, action: SwipeAction) {
         if let existing = find(mangaID: manga.id) {
             existing.action = action
