@@ -13,9 +13,9 @@ struct PreviewContainer<Content: View>: View {
         let container = try! ModelContainer(for: SwipeRecord.self,
                                             configurations: ModelConfiguration(isStoredInMemoryOnly: true))
         let store = SwipeHistoryStore(context: container.mainContext)
-        store.record(SampleMangaRepository.items[0], action: .superLike)
-        store.record(SampleMangaRepository.items[1], action: .like)
-        store.record(SampleMangaRepository.items[3], action: .nope)
+        try? store.record(SampleMangaRepository.items[0], action: .superLike)
+        try? store.record(SampleMangaRepository.items[1], action: .like)
+        try? store.record(SampleMangaRepository.items[3], action: .nope)
         self.container = container
         _deck = State(initialValue: SwipeDeckViewModel(repository: SampleMangaRepository(), store: store))
         self.content = content()

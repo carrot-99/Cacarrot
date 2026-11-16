@@ -4,6 +4,9 @@ import Foundation
 import SwiftData
 
 /// スワイプ履歴の読み書きを担当（ViewModel から SwiftData の詳細を隠す）
+///
+/// 書き込み系のメソッドは保存に失敗すると変更を取り消して（rollback）エラーを投げる。
+/// 呼び出し側（ViewModel）は画面の状態を元に戻し、ユーザーに知らせる。
 @MainActor
 final class SwipeHistoryStore {
     private let context: ModelContext
@@ -12,41 +15,56 @@ final class SwipeHistoryStore {
         self.context = context
     }
 
+    // MARK: - 読み取り
+
     /// すでに判定済みの作品ID
     func swipedIDs() -> Set<Int> {
-        let records = (try? context.fetch(FetchDescriptor<SwipeRecord>())) ?? []
-        return Set(records.map(\.mangaID))
+        Set(allRecords().map(\.mangaID))
     }
 
     /// おすすめ順の計算に使う判定履歴（ジャンルと判定のみ）
     func history() -> [(genres: [String], action: SwipeAction)] {
-        let records = (try? context.fetch(FetchDescriptor<SwipeRecord>())) ?? []
-        return records.map { ($0.genres, $0.action) }
+        allRecords().map { ($0.genres, $0.action) }
     }
 
-    func record(_ manga: Manga, action: SwipeAction) {
+    /// 新しい順の判定履歴（取り消し用）
+    func recentHistory(limit: Int) -> [(mangaID: Int, action: SwipeAction)] {
+        var descriptor = FetchDescriptor<SwipeRecord>(sortBy: [SortDescriptor(\.createdAt, order: .reverse)])
+        descriptor.fetchLimit = limit
+        let records = (try? context.fetch(descriptor)) ?? []
+        return records.map { ($0.mangaID, $0.action) }
+    }
+
+    // MARK: - 書き込み
+
+    func record(_ manga: Manga, action: SwipeAction) throws {
         if let existing = find(mangaID: manga.id) {
             existing.action = action
             existing.createdAt = .now
         } else {
             context.insert(SwipeRecord(manga: manga, action: action))
         }
-        save()
+        try save()
     }
 
-    func remove(mangaID: Int) {
+    func remove(mangaID: Int) throws {
         guard let record = find(mangaID: mangaID) else { return }
         context.delete(record)
-        save()
+        try save()
     }
 
     /// 指定した判定の履歴を削除（nil なら全件）
-    func removeAll(of action: SwipeAction? = nil) {
-        let records = (try? context.fetch(FetchDescriptor<SwipeRecord>())) ?? []
-        for record in records where action == nil || record.action == action {
+    func removeAll(of action: SwipeAction? = nil) throws {
+        for record in allRecords() where action == nil || record.action == action {
             context.delete(record)
         }
-        save()
+        try save()
+    }
+
+    // MARK: - 内部
+
+    private func allRecords() -> [SwipeRecord] {
+        (try? context.fetch(FetchDescriptor<SwipeRecord>())) ?? []
     }
 
     private func find(mangaID: Int) -> SwipeRecord? {
@@ -55,11 +73,13 @@ final class SwipeHistoryStore {
         return try? context.fetch(descriptor).first
     }
 
-    private func save() {
+    private func save() throws {
         do {
             try context.save()
         } catch {
-            assertionFailure("SwipeHistoryStore save failed: \(error)")
+            // 保存できなかった変更をメモリ上にも残さない
+            context.rollback()
+            throw error
         }
     }
 }

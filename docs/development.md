@@ -27,7 +27,20 @@ open Cacarrot.xcodeproj
 xcodebuild -project Cacarrot.xcodeproj -scheme Cacarrot -destination 'platform=iOS Simulator,name=iPhone 18 Pro' build
 ```
 
-- アプリのテストターゲットはまだありません（[issues.md](issues.md) を参照）。
+- アプリの単体テストは `CacarrotTests/`（XCTest）にあります。共有スキーム `Cacarrot` に含まれているので、Xcode の ⌘U か次のコマンドで実行できます。
+
+```bash
+xcodebuild test -project Cacarrot.xcodeproj -scheme Cacarrot -destination 'platform=iOS Simulator,name=iPhone 18 Pro'
+```
+
+| ファイル | 内容 |
+| --- | --- |
+| `RecommendationEngineTests` | 好み度の計算、並べ替え、4枚に1枚の発見枠（乱数は `SeededGenerator` で固定） |
+| `SwipeHistoryStoreTests` | 保存・更新・削除、取り消し用の履歴の順番、`likedPredicate` |
+| `SwipeDeckViewModelTests` | しきい値、判定と取り消し、再起動後の取り消し、スキップを戻す・リセット、絞り込み、おすすめ設定の保存 |
+
+- テストはメモリ上の SwiftData と、テストごとの UserDefaults を使うので、アプリのデータには影響しません。
+- `commit(_:action:)` は、アニメーションを待たずに判定を確定するため、テストから直接呼んでいます。
 - データ変換スクリプトの単体テストは、次のコマンドで実行できます。
 
 ```bash

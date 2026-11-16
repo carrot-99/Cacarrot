@@ -35,6 +35,8 @@ final class SwipeDeckViewModel {
     var filteredTotalCount: Int { allManga.lazy.filter { self.matchesFilter($0) }.count }
     /// 楽天ブックスのデータを使っているか（クレジット表記の切り替えに使う）
     var usesRakutenData: Bool { allManga.contains { $0.itemURL != nil } }
+    /// 保存に失敗したときのメッセージ（表示したら nil に戻す）
+    var errorMessage: String?
 
     // MARK: - 設定値
 
@@ -46,6 +48,8 @@ final class SwipeDeckViewModel {
     static let rerankInterval = 10
     /// 並べ直しても動かさない上のカード枚数（見えているカードが入れ替わらないように）
     static let stableTopCount = 3
+    /// 取り消せる判定の最大数（再起動後も保存済みの履歴から復元する）
+    static let undoLimit = 20
 
     // MARK: - おすすめ順
 
@@ -148,9 +152,22 @@ final class SwipeDeckViewModel {
             ? recommender.rank(remaining, affinity: currentAffinity())
             : remaining
         dragOffset = .zero
-        if resetHistory { history.removeAll() }
+        if resetHistory { restoreUndoHistory() }
         swipesSinceRerank = 0
         prefetchUpcoming()
+    }
+
+    /// 保存済みの判定から取り消し履歴を作り直す（アプリを再起動しても取り消せるように）
+    private func restoreUndoHistory() {
+        let mangaByID = Dictionary(allManga.map { ($0.id, $0) }, uniquingKeysWith: { first, _ in first })
+        history = store.recentHistory(limit: Self.undoLimit)
+            .reversed()  // 古い順に並べ、末尾が直前の判定になるようにする
+            .compactMap { entry in mangaByID[entry.mangaID].map { ($0, entry.action) } }
+    }
+
+    private func report(_ error: Error) {
+        errorMessage = "履歴を保存できませんでした。もう一度お試しください。\n（\(error.localizedDescription)）"
+        Haptics.error()
     }
 
     // MARK: - 並び順・先読み
@@ -235,8 +252,19 @@ final class SwipeDeckViewModel {
         }
     }
 
-    private func commit(_ card: Manga, action: SwipeAction) {
-        store.record(card, action: action)
+    /// 判定を保存してデッキから外す（アニメーション完了後に呼ばれる。テストから直接呼ぶため internal）
+    func commit(_ card: Manga, action: SwipeAction) {
+        do {
+            try store.record(card, action: action)
+        } catch {
+            // 保存できなかったカードは元の位置に戻す
+            report(error)
+            withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
+                dragOffset = .zero
+                exitingAction = nil
+            }
+            return
+        }
         swipedIDs.insert(card.id)
         history.append((card, action))
         action == .superLike ? Haptics.success() : Haptics.impact()
@@ -256,7 +284,13 @@ final class SwipeDeckViewModel {
     /// 直前のスワイプを取り消す
     func undo() {
         guard canUndo, let last = history.popLast() else { return }
-        store.remove(mangaID: last.manga.id)
+        do {
+            try store.remove(mangaID: last.manga.id)
+        } catch {
+            history.append(last)
+            report(error)
+            return
+        }
         swipedIDs.remove(last.manga.id)
         Haptics.impact(.soft)
         withAnimation(.spring(response: 0.4, dampingFraction: 0.75)) {
@@ -267,19 +301,34 @@ final class SwipeDeckViewModel {
 
     /// スキップした作品をデッキに戻す
     func restoreSkipped() {
-        store.removeAll(of: .nope)
+        do {
+            try store.removeAll(of: .nope)
+        } catch {
+            report(error)
+            return
+        }
         withAnimation(.spring) { rebuildDeck() }
     }
 
     /// すべての履歴を削除して最初からやり直す
     func resetAll() {
-        store.removeAll()
+        do {
+            try store.removeAll()
+        } catch {
+            report(error)
+            return
+        }
         withAnimation(.spring) { rebuildDeck() }
     }
 
     /// リスト画面から削除された作品をデッキの末尾に戻す
     func forget(mangaID: Int) {
-        store.remove(mangaID: mangaID)
+        do {
+            try store.remove(mangaID: mangaID)
+        } catch {
+            report(error)
+            return
+        }
         swipedIDs.remove(mangaID)
         history.removeAll { $0.manga.id == mangaID }
         if let manga = allManga.first(where: { $0.id == mangaID }),
