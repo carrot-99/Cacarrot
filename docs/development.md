@@ -9,6 +9,8 @@
 | Swift | 5（Swift 5 言語モード） |
 | 依存パッケージ | firebase-ios-sdk 10.23（SPM、`FirebaseAnalyticsWithoutAdIdSupport`。広告ID（IDFA）を使わない版） |
 | Bundle ID | `com.carrot.Cacarrot` |
+| アプリのカテゴリ | ブック（`LSApplicationCategoryType`） |
+| 輸出コンプライアンス | `ITSAppUsesNonExemptEncryption = NO`（標準の HTTPS のみ使用。アップロードのたびの暗号化の質問を省く） |
 | Python | 3（データ変換用。標準ライブラリだけで動く） |
 
 ## 2. セットアップ
