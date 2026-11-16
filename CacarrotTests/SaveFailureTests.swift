@@ -39,6 +39,11 @@ final class FlakyHistoryStore: SwipeHistoryStoring {
         if failWrites { throw WriteError() }
         try base.removeAll(of: action)
     }
+
+    func refreshSnapshots(with mangas: [Manga]) throws -> Int {
+        if failWrites { throw WriteError() }
+        return try base.refreshSnapshots(with: mangas)
+    }
 }
 
 /// 保存に失敗したときに、画面の状態が壊れず、ユーザーに知らせることを確認する

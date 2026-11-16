@@ -17,6 +17,8 @@ protocol SwipeHistoryStoring: AnyObject {
     func remove(mangaID: Int) throws
     /// 指定した判定の履歴を削除（nil なら全件）
     func removeAll(of action: SwipeAction?) throws
+    /// 保存している作品情報のコピーを最新のデータで更新し、更新した件数を返す
+    func refreshSnapshots(with mangas: [Manga]) throws -> Int
 }
 
 extension SwipeHistoryStoring {
@@ -86,6 +88,18 @@ final class SwipeHistoryStore: SwipeHistoryStoring {
             context.delete(record)
         }
         try save()
+    }
+
+    func refreshSnapshots(with mangas: [Manga]) throws -> Int {
+        let byID = Dictionary(mangas.map { ($0.id, $0) }, uniquingKeysWith: { first, _ in first })
+        var updated = 0
+        for record in allRecords() {
+            if let manga = byID[record.mangaID], record.refresh(from: manga) {
+                updated += 1
+            }
+        }
+        if updated > 0 { try save() }
+        return updated
     }
 
     // MARK: - 内部

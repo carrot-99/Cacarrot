@@ -82,10 +82,12 @@ struct SwipeGuideView: View {
                     .padding(.vertical, 6)
             }
             .buttonStyle(.borderedProminent)
+            .accessibilityIdentifier("guide.close")
         }
         .padding(24)
         .background(Color(.systemBackground), in: RoundedRectangle(cornerRadius: 28, style: .continuous))
         .shadow(color: .black.opacity(0.2), radius: 24, y: 8)
+        .frame(maxWidth: 480)
         .padding(.horizontal, 24)
     }
 }

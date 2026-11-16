@@ -11,4 +11,6 @@ enum Theme {
     static let undo = Color(red: 0.98, green: 0.71, blue: 0.16)
 
     static let cardCornerRadius: CGFloat = 20
+    /// カード領域の最大幅（iPad で横に広がりすぎないように）
+    static let maxCardWidth: CGFloat = 520
 }

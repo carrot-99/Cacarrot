@@ -28,6 +28,7 @@ struct HeaderView: View {
                         .padding(.vertical, 4)
                         .background(.thinMaterial, in: Capsule())
                         .accessibilityLabel("残り \(remaining) 作品")
+                        .accessibilityIdentifier("deck.remaining")
                 }
             }
         }
@@ -53,5 +54,6 @@ struct HeaderView: View {
             .frame(minWidth: 44, minHeight: 44, alignment: .leading)
         }
         .accessibilityLabel(filterCount > 0 ? "ジャンルで絞り込み中（\(filterCount)件）" : "ジャンルで絞り込む")
+        .accessibilityIdentifier("deck.filter")
     }
 }

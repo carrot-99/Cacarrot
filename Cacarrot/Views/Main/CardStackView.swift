@@ -48,6 +48,7 @@ struct CardStackView: View {
         .onTapGesture { onTapCard(manga) }
         .transition(reduceMotion ? .opacity : .scale(scale: 0.9).combined(with: .opacity))
         .accessibilityElement(children: .combine)
+        .accessibilityIdentifier("deck.topCard")
         .accessibilityHint("右スワイプでいいね、左でスキップ、上でスーパーいいね。ダブルタップで詳細")
         .accessibilityAction(named: SwipeAction.like.displayName) { deck.swipe(.like) }
         .accessibilityAction(named: SwipeAction.nope.displayName) { deck.swipe(.nope) }

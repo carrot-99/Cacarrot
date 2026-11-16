@@ -144,6 +144,9 @@ final class SwipeDeckViewModel {
         loadState = .loading
         do {
             allManga = try await repository.fetchAll()
+            // データを更新した場合に、お気に入りの表示（タイトル・表紙など）も新しくする。
+            // 失敗しても一覧が古いままになるだけなので、利用者には知らせない
+            _ = try? store.refreshSnapshots(with: allManga)
             updateAvailableGenres()
             rebuildDeck()
             loadState = .loaded
