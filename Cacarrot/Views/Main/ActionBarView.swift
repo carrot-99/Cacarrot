@@ -15,24 +15,28 @@ struct ActionBarView: View {
                 deck.undo()
             }
             .disabled(!deck.canUndo)
+            .accessibilityIdentifier("action.undo")
 
             CircleActionButton(systemImage: SwipeAction.nope.systemImage, color: SwipeAction.nope.color,
                                size: 68, label: SwipeAction.nope.displayName) {
                 deck.swipe(.nope)
             }
             .disabled(!hasCard)
+            .accessibilityIdentifier("action.nope")
 
             CircleActionButton(systemImage: SwipeAction.superLike.systemImage, color: SwipeAction.superLike.color,
                                size: 50, label: SwipeAction.superLike.displayName) {
                 deck.swipe(.superLike)
             }
             .disabled(!hasCard)
+            .accessibilityIdentifier("action.superLike")
 
             CircleActionButton(systemImage: SwipeAction.like.systemImage, color: SwipeAction.like.color,
                                size: 68, label: SwipeAction.like.displayName) {
                 deck.swipe(.like)
             }
             .disabled(!hasCard)
+            .accessibilityIdentifier("action.like")
         }
         .frame(maxWidth: .infinity)
     }

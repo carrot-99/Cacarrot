@@ -16,14 +16,17 @@ struct MainView: View {
                        total: deck.filteredTotalCount,
                        filterCount: deck.selectedGenres.count,
                        onFilterTap: { isShowingFilter = true })
+                .frame(maxWidth: Theme.maxCardWidth + 24)
 
             content
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                // iPad などの広い画面では、カードが横に広がりすぎないよう幅を抑える
+                .frame(maxWidth: Theme.maxCardWidth, maxHeight: .infinity)
                 .padding(.horizontal, 12)
 
             ActionBarView()
                 .padding(.bottom, 8)
         }
+        .frame(maxWidth: .infinity)
         .background(Color(.systemGroupedBackground))
         .task { await deck.loadIfNeeded() }
         .onChange(of: reduceMotion, initial: true) { _, newValue in

@@ -67,4 +67,21 @@ final class SwipeHistoryStoreTests: XCTestCase {
         XCTAssertEqual(record.action, .superLike)
         XCTAssertEqual(record.createdAt, before, "並び順を保つため日時は変えない")
     }
+
+    func testRefreshSnapshotsUpdatesChangedTitles() throws {
+        try store.record(items[0], action: .like)
+        try store.record(items[1], action: .nope)
+        let renamed = Manga(id: items[0].id, title: "新しいタイトル", author: "新しい作者",
+                            genres: ["SF"], summary: "新しいあらすじ",
+                            imageURL: URL(string: "https://example.com/a.jpg"),
+                            publisher: "出版社", itemURL: URL(string: "https://example.com/item"))
+        let updated = try store.refreshSnapshots(with: [renamed, items[1]])
+        XCTAssertEqual(updated, 1, "変わっていない作品は数えない")
+
+        let record = try container.mainContext.fetch(
+            FetchDescriptor<SwipeRecord>(predicate: #Predicate { $0.mangaID == 0 })).first!
+        XCTAssertEqual(record.manga, renamed)
+        XCTAssertEqual(record.action, .like, "判定は変えない")
+        XCTAssertEqual(try store.refreshSnapshots(with: [renamed]), 0)
+    }
 }

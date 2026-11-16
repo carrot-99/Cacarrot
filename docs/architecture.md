@@ -55,6 +55,13 @@ flowchart TD
 3. その ViewModel を `.environment(deck)` で全画面に渡し、`.modelContainer(container)` で SwiftData を渡します。
 4. `AppDelegate` で `FirebaseApp.configure()` を呼びます。
 
+### 起動モード
+
+- 起動引数 `-uiTesting` が付いているときは（`LaunchMode.isUITesting`）、UI テスト用に次の構成で起動します。
+  - メモリ上の SwiftData、専用の UserDefaults（`.defaultAppStorage` で `@AppStorage` にも適用）、`SampleMangaRepository`、おすすめ順オフ
+  - Firebase は初期化せず、利用イベントも送らない
+- 起動時に、保存しているお気に入りの作品情報を最新のデータで更新します（`SwipeHistoryStoring.refreshSnapshots`）。
+
 ### 読み書きの分担
 
 - **書き込み**：デッキ操作による書き込みは、すべて `SwipeDeckViewModel` から `SwipeHistoryStore` を通して行います。

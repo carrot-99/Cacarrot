@@ -102,6 +102,7 @@ struct MangaDetailView: View {
                             dismiss()
                             onDecide(action)
                         }
+                        .accessibilityIdentifier("detail.\(action.rawValue)")
                     }
                 }
                 .frame(maxWidth: .infinity)

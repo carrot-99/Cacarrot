@@ -41,6 +41,19 @@ xcodebuild test -project Cacarrot.xcodeproj -scheme Cacarrot -destination 'platf
 | `SwipeDeckViewModelTests` | しきい値、判定と取り消し、再起動後の取り消し、スキップを戻す・リセット、絞り込み、おすすめ設定の保存、お気に入りの判定変更、利用イベント（偽物の `SpyAnalytics` で確認）、視差効果を減らす |
 
 - テストはメモリ上の SwiftData と、テストごとの UserDefaults を使うので、アプリのデータには影響しません。
+
+### UI テスト（CacarrotUITests）
+
+| テスト | 内容 |
+| --- | --- |
+| `testLikeFromButtonThenUndo` | 使い方を閉じる → ボタンでいいね → お気に入りに出る → 取り消す |
+| `testSwipeGesture` | カードを実際に左へスワイプしてスキップ |
+| `testGenreFilter` | 「ギャグ」で絞り込むと1作品になる |
+| `testJudgeFromDetailSheet` | カードをタップして詳細を開き、スーパーいいね |
+
+- アプリを起動引数 `-uiTesting` で起動します。このときは、メモリ上のデータ・専用の UserDefaults（`CacarrotUITesting`）・サンプル6作品・おすすめ順オフで動き、Firebase も初期化しません。端末に保存された履歴や設定には触れません。
+- 画面の要素は `accessibilityIdentifier`（`deck.remaining`、`action.like`、`detail.superLike` など）で探します。文言を変えてもテストが壊れないように、新しい操作にも識別子を付けてください。
+- 4件で約1分かかります。単体テストだけを実行するときは `-only-testing:CacarrotTests` を付けます。
 - `commit(_:action:)` は、アニメーションを待たずに判定を確定するため、テストから直接呼んでいます。
 - データ変換スクリプトの単体テストは、次のコマンドで実行できます。
 

@@ -62,6 +62,16 @@
                ReferencedContainer = "container:Cacarrot.xcodeproj">
             </BuildableReference>
          </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "5294B179E06A919196CBADE7"
+               BuildableName = "CacarrotUITests.xctest"
+               BlueprintName = "CacarrotUITests"
+               ReferencedContainer = "container:Cacarrot.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
    </TestAction>
    <LaunchAction

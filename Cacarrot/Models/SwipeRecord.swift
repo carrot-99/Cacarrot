@@ -37,6 +37,26 @@ final class SwipeRecord {
         set { actionRawValue = newValue.rawValue }
     }
 
+    /// 最新の作品データで、保存しているコピーを更新する（変更があれば true）
+    @discardableResult
+    func refresh(from manga: Manga) -> Bool {
+        let imageURL = manga.imageURL?.absoluteString
+        let itemURL = manga.itemURL?.absoluteString
+        guard title != manga.title || author != manga.author || genres != manga.genres
+                || summary != manga.summary || imageName != manga.imageName
+                || imageURLString != imageURL || publisher != manga.publisher
+                || itemURLString != itemURL else { return false }
+        title = manga.title
+        author = manga.author
+        genres = manga.genres
+        summary = manga.summary
+        imageName = manga.imageName
+        imageURLString = imageURL
+        publisher = manga.publisher
+        itemURLString = itemURL
+        return true
+    }
+
     var manga: Manga {
         Manga(id: mangaID,
               title: title,
