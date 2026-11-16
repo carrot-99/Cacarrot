@@ -19,6 +19,20 @@ protocol SwipeHistoryStoring: AnyObject {
     func removeAll(of action: SwipeAction?) throws
     /// 保存している作品情報のコピーを最新のデータで更新し、更新した件数を返す
     func refreshSnapshots(with mangas: [Manga]) throws -> Int
+    /// データ源の変更などで ID が変わった履歴を、タイトルが同じ作品に付け替え、付け替えた件数を返す
+    func relinkOrphans(to mangas: [Manga]) throws -> Int
+}
+
+extension Manga {
+    /// タイトル照合用のキー（全角半角・大文字小文字・空白・記号の違いを無視）
+    var titleKey: String {
+        title.folding(options: [.caseInsensitive, .widthInsensitive, .diacriticInsensitive],
+                      locale: Locale(identifier: "ja_JP"))
+            .unicodeScalars
+            .filter { CharacterSet.alphanumerics.contains($0) }
+            .map(String.init)
+            .joined()
+    }
 }
 
 extension SwipeHistoryStoring {
@@ -100,6 +114,35 @@ final class SwipeHistoryStore: SwipeHistoryStoring {
         }
         if updated > 0 { try save() }
         return updated
+    }
+
+    func relinkOrphans(to mangas: [Manga]) throws -> Int {
+        let knownIDs = Set(mangas.map(\.id))
+        let records = allRecords()
+        var usedIDs = Set(records.map(\.mangaID))
+
+        // 同じタイトルが複数ある場合は、どれか分からないので付け替えない
+        var byTitle: [String: Manga] = [:]
+        var duplicated: Set<String> = []
+        for manga in mangas {
+            let key = manga.titleKey
+            guard !key.isEmpty else { continue }
+            if byTitle[key] != nil { duplicated.insert(key) } else { byTitle[key] = manga }
+        }
+
+        var relinked = 0
+        for record in records where !knownIDs.contains(record.mangaID) {
+            let key = record.manga.titleKey
+            guard !duplicated.contains(key), let match = byTitle[key],
+                  !usedIDs.contains(match.id) else { continue }  // すでに判定済みの作品とは重ねない
+            usedIDs.remove(record.mangaID)
+            record.mangaID = match.id
+            record.refresh(from: match)
+            usedIDs.insert(match.id)
+            relinked += 1
+        }
+        if relinked > 0 { try save() }
+        return relinked
     }
 
     // MARK: - 内部

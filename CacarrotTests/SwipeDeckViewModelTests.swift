@@ -224,4 +224,21 @@ final class SwipeDeckViewModelTests: XCTestCase {
         XCTAssertFalse(deck.isAnimating)
         XCTAssertEqual(analytics.events.last, .swipe(action: .like, source: .button))
     }
+
+    // MARK: - データ源の変更
+
+    func testSwipedTitlesStayOutOfDeckAfterIDsChange() async throws {
+        try store.record(items[0], action: .like)  // 旧データの ONE PIECE
+        struct NewSource: MangaRepository {
+            func fetchAll() async throws -> [Manga] {
+                [Manga(id: 1001, title: "ONE PIECE", author: "尾田栄一郎", genres: [], summary: ""),
+                 Manga(id: 1002, title: "別の作品", author: "", genres: [], summary: "")]
+            }
+        }
+        let deck = SwipeDeckViewModel(repository: NewSource(), store: store,
+                                      defaults: defaults, analytics: analytics)
+        await deck.loadIfNeeded()
+        XCTAssertEqual(deck.cards.map(\.id), [1002], "判定済みの ONE PIECE は新しい ID でもデッキに出ない")
+        XCTAssertTrue(deck.canUndo, "付け替えた履歴も取り消せる")
+    }
 }

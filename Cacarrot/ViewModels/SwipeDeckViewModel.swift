@@ -146,6 +146,8 @@ final class SwipeDeckViewModel {
             allManga = try await repository.fetchAll()
             // データを更新した場合に、お気に入りの表示（タイトル・表紙など）も新しくする。
             // 失敗しても一覧が古いままになるだけなので、利用者には知らせない
+            // データ源を変えて作品の ID が変わっても、判定済みの作品が再びデッキに出ないよう付け替える
+            _ = try? store.relinkOrphans(to: allManga)
             _ = try? store.refreshSnapshots(with: allManga)
             updateAvailableGenres()
             rebuildDeck()

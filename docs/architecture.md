@@ -60,7 +60,9 @@ flowchart TD
 - 起動引数 `-uiTesting` が付いているときは（`LaunchMode.isUITesting`）、UI テスト用に次の構成で起動します。
   - メモリ上の SwiftData、専用の UserDefaults（`.defaultAppStorage` で `@AppStorage` にも適用）、`SampleMangaRepository`、おすすめ順オフ
   - Firebase は初期化せず、利用イベントも送らない
-- 起動時に、保存しているお気に入りの作品情報を最新のデータで更新します（`SwipeHistoryStoring.refreshSnapshots`）。
+- 起動時に、履歴を今のデータに合わせます。
+  1. `relinkOrphans`：今のデータにない ID の履歴を、タイトルが同じ作品の ID に付け替える（データ源の変更で ID が変わっても、判定済みの作品をデッキに出さないため）。照合は `Manga.titleKey`（全角半角・大文字小文字・空白・記号を無視）
+  2. `refreshSnapshots`：保存しているお気に入りの作品情報（タイトル・表紙など）を最新のデータで更新する
 
 ### 読み書きの分担
 
