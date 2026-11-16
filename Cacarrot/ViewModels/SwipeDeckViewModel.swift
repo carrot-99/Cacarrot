@@ -29,23 +29,56 @@ final class SwipeDeckViewModel {
     var canUndo: Bool { !history.isEmpty && !isAnimating }
     var remainingCount: Int { cards.count }
     var totalCount: Int { allManga.count }
+    /// 楽天ブックスのデータを使っているか（クレジット表記の切り替えに使う）
+    var usesRakutenData: Bool { allManga.contains { $0.itemURL != nil } }
 
     // MARK: - 設定値
 
     static let horizontalThreshold: CGFloat = 110
     static let verticalThreshold: CGFloat = 140
+    /// 表紙を先読みする枚数（表示中の3枚＋この先）
+    static let prefetchCount = 6
+    /// この枚数を判定するごとに、残りのカードを好みに合わせて並べ直す
+    static let rerankInterval = 10
+    /// 並べ直しても動かさない上のカード枚数（見えているカードが入れ替わらないように）
+    static let stableTopCount = 3
+
+    // MARK: - おすすめ順
+
+    /// 好みのジャンルに近い作品を先に出す（オフならランダム順）
+    var isRecommendationEnabled: Bool {
+        didSet {
+            guard isRecommendationEnabled != oldValue else { return }
+            defaults.set(isRecommendationEnabled, forKey: Self.recommendationKey)
+            withAnimation(.spring) { reorderRemaining() }
+        }
+    }
+
+    private static let recommendationKey = "isRecommendationEnabled"
 
     // MARK: - 依存
 
     private let repository: MangaRepository
     private let store: SwipeHistoryStore
+    private let recommender: RecommendationEngine
+    private let imageLoader: ImageLoader
+    private let defaults: UserDefaults
     private var allManga: [Manga] = []
     private var history: [(manga: Manga, action: SwipeAction)] = []
     private var pendingAction: SwipeAction?
+    private var swipesSinceRerank = 0
 
-    init(repository: MangaRepository, store: SwipeHistoryStore) {
+    init(repository: MangaRepository,
+         store: SwipeHistoryStore,
+         recommender: RecommendationEngine = RecommendationEngine(),
+         imageLoader: ImageLoader = .shared,
+         defaults: UserDefaults = .standard) {
         self.repository = repository
         self.store = store
+        self.recommender = recommender
+        self.imageLoader = imageLoader
+        self.defaults = defaults
+        self.isRecommendationEnabled = defaults.object(forKey: Self.recommendationKey) as? Bool ?? true
     }
 
     // MARK: - 読み込み
@@ -68,9 +101,37 @@ final class SwipeDeckViewModel {
 
     private func rebuildDeck() {
         let swiped = store.swipedIDs()
-        cards = allManga.filter { !swiped.contains($0.id) }
+        let remaining = allManga.filter { !swiped.contains($0.id) }
+        cards = isRecommendationEnabled
+            ? recommender.rank(remaining, affinity: currentAffinity())
+            : remaining
         dragOffset = .zero
         history.removeAll()
+        swipesSinceRerank = 0
+        prefetchUpcoming()
+    }
+
+    // MARK: - 並び順・先読み
+
+    private func currentAffinity() -> [String: Double] {
+        recommender.genreAffinity(from: store.history())
+    }
+
+    /// 見えている上のカードはそのままに、残りを並べ直す
+    private func reorderRemaining() {
+        guard cards.count > Self.stableTopCount else { return }
+        let top = Array(cards.prefix(Self.stableTopCount))
+        let rest = Array(cards.dropFirst(Self.stableTopCount))
+        let reordered = isRecommendationEnabled
+            ? recommender.rank(rest, affinity: currentAffinity())
+            : rest.shuffled()
+        cards = top + reordered
+        swipesSinceRerank = 0
+        prefetchUpcoming()
+    }
+
+    private func prefetchUpcoming() {
+        imageLoader.prefetch(cards.prefix(Self.prefetchCount).compactMap(\.imageURL))
     }
 
     // MARK: - ドラッグ
@@ -140,6 +201,12 @@ final class SwipeDeckViewModel {
             cards.removeAll { $0.id == card.id }
             dragOffset = .zero
             exitingAction = nil
+        }
+        swipesSinceRerank += 1
+        if isRecommendationEnabled, swipesSinceRerank >= Self.rerankInterval {
+            reorderRemaining()  // 見えていないカードだけを並べ直すのでアニメーション不要
+        } else {
+            prefetchUpcoming()
         }
     }
 

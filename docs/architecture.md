@@ -39,6 +39,9 @@ flowchart TD
     PV -. "@Query" .-> DB
     VM --> REPO
     VM --> STORE
+    VM --> REC[RecommendationEngine<br/>おすすめ順]
+    VM -- 先読み --> IMG[ImageLoader<br/>画像キャッシュ]
+    CS -. 表紙 .-> IMG
     REPO --> JSON[(Resources/manga.json)]
     STORE --> DB[(SwiftData<br/>SwipeRecord)]
 ```
@@ -63,7 +66,7 @@ flowchart TD
 
 | 型 | 役割 |
 | --- | --- |
-| `Manga` | カード 1 枚分の作品データ（id・タイトル・作者・ジャンル・あらすじ・`imageName?`・`imageURL?`）。値型でイミュータブル、`Codable` |
+| `Manga` | カード 1 枚分の作品データ（id・タイトル・作者・ジャンル・あらすじ・`imageName?`・`imageURL?`・`publisher?`・`itemURL?`）。値型でイミュータブル、`Codable` |
 | `SwipeAction` | ユーザーの判定。`like` / `superLike` / `nope` の 3 つ。スタンプの文字・表示名・SF Symbols・色・画面外へ飛ぶ方向（`exitOffset(in:)`）を持つ |
 | `SwipeRecord` | 判定の履歴。SwiftData の `@Model`。`mangaID` はユニーク。一覧表示用に作品情報のコピーを持ち、`manga` で `Manga` に戻せる |
 
@@ -74,7 +77,9 @@ flowchart TD
 | `MangaRepository` | 作品データの取得元を表すプロトコル（`fetchAll() async throws -> [Manga]`）。API や Firestore に差し替えられるようにしている |
 | `BundledMangaRepository` | アプリに同梱した `manga.json` をバックグラウンドで読み込み、デコードしてシャッフルする |
 | `SampleMangaRepository` | プレビュー用のサンプル 6 件。表紙はローカル画像 |
-| `SwipeHistoryStore` | `SwipeRecord` の追加・更新・削除。ViewModel から SwiftData の細かい処理を隠す |
+| `SwipeHistoryStore` | `SwipeRecord` の追加・更新・削除。ViewModel から SwiftData の細かい処理を隠す。`history()` でおすすめ計算用の判定履歴を返す |
+| `ImageLoader` | 表紙画像の取得とキャッシュ。メモリ（NSCache、デコード済み）とディスク（専用の URLCache、300MB、`Caches/CoverImages`）の2段。同じURLへの同時リクエストは1本にまとめる。`prefetch(_:)` で先読み |
+| `RecommendationEngine` | 判定履歴からジャンルの好み度を計算し、デッキを並べ替える（詳しくは「4. おすすめ順の仕組み」） |
 
 ### ViewModels（`Cacarrot/ViewModels`）
 
@@ -93,6 +98,8 @@ flowchart TD
 | 取り消し | `undo()` | 直前の判定を取り消してカードを一番上に戻す。履歴はメモリ上だけで持つ |
 | 管理 | `restoreSkipped()` / `resetAll()` / `forget(mangaID:)` | スキップを戻す、すべて消す、お気に入りから外してデッキの最後に戻す |
 | 表示 | `stampOpacity(for:)` | GOOD / NOPE / SUPER スタンプの濃さ |
+| おすすめ | `isRecommendationEnabled` | おすすめ順のオン・オフ。UserDefaults に保存。切り替えると、見えている上の3枚以外を並べ直す |
+| 先読み | （内部）`prefetchUpcoming()` | デッキを作ったとき・判定のたびに、上から6枚の表紙を先読みする |
 
 ### Utilities（`Cacarrot/Utilities`）
 
@@ -137,7 +144,28 @@ stateDiagram-v2
 - 描画するのは上から 3 枚だけです。
 - 一番上のカードを動かすほど、後ろのカードが少しずつ大きく前に出てきます（`CardStackView.dragProgress`）。
 
-## 4. フォルダ構成
+## 4. おすすめ順の仕組み
+
+`RecommendationEngine` が、判定履歴からデッキの並び順を決めます。
+
+1. **ジャンルの好み度**：判定ごとに、その作品の各ジャンルへ次の値を加算し、最大の絶対値が 1 になるよう正規化します。
+
+| 判定 | 加算 |
+| --- | --- |
+| いいね | +1 |
+| スーパーいいね | +2 |
+| スキップ | −0.5 |
+
+2. **作品のスコア**：作品のジャンルの好み度の平均に、0〜0.6 のランダムな揺らぎを足します。
+3. **並べ替え**：スコアの高い順に並べます。ただし、**4枚に1枚**は、スコアの下半分からランダムに選んだ作品を入れます（新しい好みに出会えるように）。
+4. **並べ直すタイミング**
+   - デッキを作ったとき（起動時、スキップを戻したとき、リセットしたとき）
+   - 10枚判定するごと
+   - おすすめ順を切り替えたとき
+   - 見えている上の3枚は入れ替えません。
+5. 履歴がないときは、元のランダムな順番のままです。
+
+## 5. フォルダ構成
 
 ```
 Cacarrot/

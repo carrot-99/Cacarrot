@@ -27,10 +27,42 @@ open Cacarrot.xcodeproj
 xcodebuild -project Cacarrot.xcodeproj -scheme Cacarrot -destination 'platform=iOS Simulator,name=iPhone 18 Pro' build
 ```
 
-- テストターゲットはまだありません（[issues.md](issues.md) を参照）。
+- アプリのテストターゲットはまだありません（[issues.md](issues.md) を参照）。
+- データ変換スクリプトの単体テストは、次のコマンドで実行できます。
+
+```bash
+cd MangaInfoFetcher && python3 -m unittest discover -s tests -v
+```
 - 各 View には `#Preview` があります。プレビューでは `PreviewContainer` がメモリ上の SwiftData と `SampleMangaRepository` を使います。
 
 ## 4. 作品データの更新
+
+### 楽天ブックスから（推奨）
+
+1. 楽天ウェブサービスでアプリを登録し、次の値を `MangaInfoFetcher/.env` に書きます（Git の管理外）。
+   - 「許可するIPアドレス」には、このMacのグローバルIPを登録します（`curl -s https://api.ipify.org` で確認できます）。
+
+```
+RAKUTEN_APP_ID=アプリID
+RAKUTEN_ACCESS_KEY=pk_...
+RAKUTEN_AFFILIATE_ID=（任意）
+RAKUTEN_REFERER=https://github.com/carrot-99/Cacarrot
+```
+
+2. 接続を確認してから取得します（全ページで約2分）。標準ライブラリだけで動くので、venv は不要です。
+
+```bash
+cd MangaInfoFetcher && python3 fetch_rakuten.py --check
+```
+
+```bash
+cd MangaInfoFetcher && python3 fetch_rakuten.py
+```
+
+3. `python3 build_app_data.py` で `manga.json` を作り直します（`rakuten_raw.json` があれば自動で楽天モードになります）。
+4. 中身を確認します。特に、作品のまとめ方、あらすじ、表紙の解像度、楽天の区分を見てください。
+
+### AniList から（旧方式）
 
 1. 必要なら AniList から取得し直します。`query.py` の `start_page` を確認してから実行してください。
    - 1 ページごとに 40 秒待つため、全件の取得には長い時間がかかります。
