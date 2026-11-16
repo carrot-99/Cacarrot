@@ -84,4 +84,44 @@ final class SwipeHistoryStoreTests: XCTestCase {
         XCTAssertEqual(record.action, .like, "判定は変えない")
         XCTAssertEqual(try store.refreshSnapshots(with: [renamed]), 0)
     }
+
+    // MARK: - ID の付け替え
+
+    private func newSourceManga(_ id: Int, _ title: String) -> Manga {
+        Manga(id: id, title: title, author: "新データの作者", genres: ["少年"], summary: "日本語のあらすじ")
+    }
+
+    func testRelinkOrphansByTitle() throws {
+        try store.record(items[0], action: .like)          // ONE PIECE（旧ID 0）
+        try store.record(items[1], action: .nope)          // DRAGON BALL（旧ID 1）
+        let newData = [
+            newSourceManga(9784088725093, "ＯＮＥ　ＰＩＥＣＥ"),   // 全角でも同じ作品とみなす
+            newSourceManga(9784088518718, "DRAGON BALL"),
+            newSourceManga(9784000000001, "新しい作品"),
+        ]
+        XCTAssertEqual(try store.relinkOrphans(to: newData), 2)
+        XCTAssertEqual(store.swipedIDs(), [9784088725093, 9784088518718])
+
+        let onePiece = try container.mainContext.fetch(
+            FetchDescriptor<SwipeRecord>(predicate: #Predicate { $0.mangaID == 9784088725093 })).first
+        XCTAssertEqual(onePiece?.action, .like, "判定は引き継ぐ")
+        XCTAssertEqual(onePiece?.author, "新データの作者", "作品情報も新しいデータにする")
+    }
+
+    func testRelinkSkipsAmbiguousAndAlreadySwiped() throws {
+        try store.record(items[0], action: .like)                      // ONE PIECE（旧ID 0）
+        let duplicate = [newSourceManga(100, "ONE PIECE"), newSourceManga(101, "One Piece")]
+        XCTAssertEqual(try store.relinkOrphans(to: duplicate), 0, "同じタイトルが複数あるときは付け替えない")
+
+        let existing = newSourceManga(200, "ONE PIECE")
+        try store.record(existing, action: .nope)                      // 新しい ID ですでに判定済み
+        XCTAssertEqual(try store.relinkOrphans(to: [existing]), 0, "判定済みの作品とは重ねない")
+        XCTAssertEqual(store.swipedIDs(), [items[0].id, 200])
+    }
+
+    func testRelinkKeepsKnownRecords() throws {
+        try store.record(items[2], action: .like)
+        XCTAssertEqual(try store.relinkOrphans(to: Array(items)), 0)
+        XCTAssertEqual(store.swipedIDs(), [items[2].id])
+    }
 }
