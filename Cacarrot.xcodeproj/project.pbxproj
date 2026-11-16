@@ -39,6 +39,7 @@
 		D0C3D72D18E4431A876FB6A4 /* SwipeGuideView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1A21B40C6174522A9289EFA /* SwipeGuideView.swift */; };
 		D31C715919D540C79C35DB5F /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0594D7199D3F623D75E0BDF9 /* ProfileView.swift */; };
 		DC15E741209000A4FFE8DA05 /* LibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D29E23C3EA9BC9D823E0880 /* LibraryView.swift */; };
+		E63583DB054CF7FC96C2A60C /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = A1D371A73B0871F6F0E5DC47 /* PrivacyInfo.xcprivacy */; };
 		EDB1AD1791453D126680B6AD /* EmptyDeckView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A880E8AF2F442C64E9243E1 /* EmptyDeckView.swift */; };
 		F96572E85F587A59628D92EF /* SwipeRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E4E490D4987472BA46752C2 /* SwipeRecord.swift */; };
 		FC20FDA831F64A8FAA2DCF0C /* GenreFilterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AC7E74F698E495D8A7F084E /* GenreFilterView.swift */; };
@@ -77,6 +78,7 @@
 		8D29E23C3EA9BC9D823E0880 /* LibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryView.swift; sourceTree = "<group>"; };
 		8E4E490D4987472BA46752C2 /* SwipeRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwipeRecord.swift; sourceTree = "<group>"; };
 		A1A21B40C6174522A9289EFA /* SwipeGuideView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwipeGuideView.swift; sourceTree = "<group>"; };
+		A1D371A73B0871F6F0E5DC47 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		B4585000748037AAE0F5EB58 /* GenreTagsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenreTagsView.swift; sourceTree = "<group>"; };
 		BD1655FFC5205D3CE6539094 /* SwipeDeckViewModelTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SwipeDeckViewModelTests.swift; sourceTree = "<group>"; };
 		C0FFEE000000000000000002 /* manga.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = manga.json; sourceTree = "<group>"; };
@@ -204,6 +206,7 @@
 				CE59D3342BA9612900A748BA /* Views */,
 				CE59D3352BA9613C00A748BA /* ViewModels */,
 				3091E55AA65C983704253602 /* Services */,
+				A1D371A73B0871F6F0E5DC47 /* PrivacyInfo.xcprivacy */,
 			);
 			path = Cacarrot;
 			sourceTree = "<group>";
@@ -378,6 +381,7 @@
 				CE59D3242BA95F4400A748BA /* Assets.xcassets in Resources */,
 				CE59D34F2BAC111D00A748BA /* GoogleService-Info.plist in Resources */,
 				C0FFEE000000000000000003 /* manga.json in Resources */,
+				E63583DB054CF7FC96C2A60C /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

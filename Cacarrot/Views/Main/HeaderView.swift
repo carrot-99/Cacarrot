@@ -33,6 +33,8 @@ struct HeaderView: View {
         }
         .padding(.horizontal)
         .padding(.top, 4)
+        // ロゴと重ならないよう、ヘッダーの文字の拡大は一定までにする
+        .dynamicTypeSize(...DynamicTypeSize.xLarge)
     }
 
     private var filterButton: some View {

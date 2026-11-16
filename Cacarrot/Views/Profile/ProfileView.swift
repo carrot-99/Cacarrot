@@ -59,20 +59,9 @@ struct ProfileView: View {
                     } else {
                         let maxCount = topGenres.first?.count ?? 1
                         ForEach(topGenres, id: \.genre) { item in
-                            HStack {
-                                Text(item.genre)
-                                    .lineLimit(1)
-                                    .minimumScaleFactor(0.7)
-                                    .frame(width: 110, alignment: .leading)
-                                GeometryReader { proxy in
-                                    Capsule()
-                                        .fill(Theme.accent.gradient)
-                                        .frame(width: proxy.size.width * CGFloat(item.count) / CGFloat(maxCount))
-                                }
-                                .frame(height: 10)
-                            }
-                            .accessibilityElement(children: .combine)
-                            .accessibilityValue("\(item.count)")
+                            GenreBarRow(genre: item.genre, ratio: CGFloat(item.count) / CGFloat(maxCount))
+                                .accessibilityElement(children: .combine)
+                                .accessibilityValue("\(item.count)")
                         }
                     }
                 }
@@ -136,6 +125,40 @@ struct ProfileView: View {
     }
 }
 
+/// 好きなジャンルの横棒。文字が大きい設定では、ジャンル名を棒の上に置く
+private struct GenreBarRow: View {
+    let genre: String
+    let ratio: CGFloat
+
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+
+    var body: some View {
+        if dynamicTypeSize.isAccessibilitySize {
+            VStack(alignment: .leading, spacing: 6) {
+                Text(genre)
+                bar
+            }
+        } else {
+            HStack {
+                Text(genre)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
+                    .frame(width: 110, alignment: .leading)
+                bar
+            }
+        }
+    }
+
+    private var bar: some View {
+        GeometryReader { proxy in
+            Capsule()
+                .fill(Theme.accent.gradient)
+                .frame(width: proxy.size.width * ratio)
+        }
+        .frame(height: 10)
+    }
+}
+
 private struct StatTile: View {
     let action: SwipeAction
     let value: Int
@@ -151,8 +174,9 @@ private struct StatTile: View {
             Text(action.displayName)
                 .font(.caption2)
                 .foregroundStyle(.secondary)
-                .lineLimit(1)
-                .minimumScaleFactor(0.8)
+                .multilineTextAlignment(.center)
+                .lineLimit(2)
+                .minimumScaleFactor(0.7)
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 10)

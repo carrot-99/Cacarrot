@@ -95,7 +95,14 @@ cd MangaInfoFetcher && python3 build_app_data.py
 - 件数とスコアの下限は、`--limit` と `--min-score` で変えられます。
 - `manga_info.csv` は大きいため、Git の管理外です。
 
-## 5. 実装のルール
+## 5. プライバシーマニフェスト
+
+- `Cacarrot/PrivacyInfo.xcprivacy` に、トラッキングの有無、収集するデータ、理由の申告が必要な API を書いています。
+- 新しく次のものを使い始めたら、このファイルにも追加してください。
+  - 理由の申告が必要な API（ファイルの日時、起動からの時間、ディスクの空き容量、キーボードの一覧など）
+  - データを収集する SDK（その SDK 自身がマニフェストを持っていない場合）
+
+## 6. 実装のルール
 
 **依存と状態**
 - 新しい依存は `CacarrotApp.init()` で組み立て、`.environment` で渡します。View の body の中で ViewModel を作らないでください。
