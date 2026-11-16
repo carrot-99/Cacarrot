@@ -13,7 +13,7 @@ struct SwipeCardView: View {
         MangaCoverView(manga: manga)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .overlay {
-                LinearGradient(colors: [.clear, .clear, .black.opacity(0.85)],
+                LinearGradient(colors: [.clear, .clear, .black.opacity(0.4)],
                                startPoint: .top, endPoint: .bottom)
             }
             .overlay(alignment: .bottomLeading) { info }
@@ -44,6 +44,7 @@ struct SwipeCardView: View {
                 .font(.system(size: 32, weight: .heavy))
                 .lineLimit(2)
                 .minimumScaleFactor(0.7)
+                .fixedSize(horizontal: false, vertical: true)
 
             Text(manga.author)
                 .font(.title3.weight(.medium))
@@ -63,6 +64,14 @@ struct SwipeCardView: View {
         .foregroundStyle(.white)
         .padding(20)
         .frame(maxWidth: .infinity, alignment: .leading)
+        // 文字の量に関係なく必ず読めるよう、情報部分の背面に暗いグラデーションを敷く
+        .background {
+            LinearGradient(colors: [.clear, .black.opacity(0.6), .black.opacity(0.85)],
+                           startPoint: .top, endPoint: .bottom)
+                .padding(.top, -48)
+        }
+        // カードは大きさが決まっているので、文字の拡大は一定までにする（全文は詳細シートで読める）
+        .dynamicTypeSize(...DynamicTypeSize.xxLarge)
     }
 }
 
