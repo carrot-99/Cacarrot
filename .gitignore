@@ -1,0 +1,24 @@
+# Xcode
+*.xcuserstate
+xcuserdata/
+*.xccheckout
+DerivedData/
+
+# Swift Package Manager
+.build/
+
+# Python (MangaInfoFetcher)
+venv/
+__pycache__/
+
+# Large raw data
+MangaInfoFetcher/*.csv
+
+# Backup
+backup-*/
+
+# Other
+.DS_Store
+*.log
+
+GoogleService-Info.plist
