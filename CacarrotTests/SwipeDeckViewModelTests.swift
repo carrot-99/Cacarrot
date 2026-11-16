@@ -157,4 +157,22 @@ final class SwipeDeckViewModelTests: XCTestCase {
         let deck = await makeDeck(recommendation: false)
         XCTAssertEqual(deck.cards.map(\.id), items.map(\.id))
     }
+
+    // MARK: - お気に入りの編集
+
+    func testChangeActionUpdatesStoreAndUndo() async throws {
+        let deck = await makeDeck()
+        let card = deck.cards[0]
+        deck.commit(card, action: .like)
+        deck.changeAction(mangaID: card.id, to: .superLike)
+
+        let record = try container.mainContext.fetch(FetchDescriptor<SwipeRecord>()).first
+        XCTAssertEqual(record?.action, .superLike)
+        XCTAssertNil(deck.errorMessage)
+
+        // 取り消すと、カードがデッキに戻り履歴も消える
+        deck.undo()
+        XCTAssertEqual(deck.topCard?.id, card.id)
+        XCTAssertTrue(store.swipedIDs().isEmpty)
+    }
 }

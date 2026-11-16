@@ -321,6 +321,21 @@ final class SwipeDeckViewModel {
         withAnimation(.spring) { rebuildDeck() }
     }
 
+    /// お気に入りの判定を変更する（いいね ⇄ スーパーいいね）
+    func changeAction(mangaID: Int, to action: SwipeAction) {
+        do {
+            try store.updateAction(mangaID: mangaID, to: action)
+        } catch {
+            report(error)
+            return
+        }
+        // 取り消し履歴も新しい判定に合わせる
+        if let index = history.firstIndex(where: { $0.manga.id == mangaID }) {
+            history[index].action = action
+        }
+        Haptics.selection()
+    }
+
     /// リスト画面から削除された作品をデッキの末尾に戻す
     func forget(mangaID: Int) {
         do {

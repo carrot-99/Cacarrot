@@ -36,8 +36,8 @@ xcodebuild test -project Cacarrot.xcodeproj -scheme Cacarrot -destination 'platf
 | ファイル | 内容 |
 | --- | --- |
 | `RecommendationEngineTests` | 好み度の計算、並べ替え、4枚に1枚の発見枠（乱数は `SeededGenerator` で固定） |
-| `SwipeHistoryStoreTests` | 保存・更新・削除、取り消し用の履歴の順番、`likedPredicate` |
-| `SwipeDeckViewModelTests` | しきい値、判定と取り消し、再起動後の取り消し、スキップを戻す・リセット、絞り込み、おすすめ設定の保存 |
+| `SwipeHistoryStoreTests` | 保存・更新・削除、判定だけの変更、取り消し用の履歴の順番、`likedPredicate` |
+| `SwipeDeckViewModelTests` | しきい値、判定と取り消し、再起動後の取り消し、スキップを戻す・リセット、絞り込み、おすすめ設定の保存、お気に入りの判定変更 |
 
 - テストはメモリ上の SwiftData と、テストごとの UserDefaults を使うので、アプリのデータには影響しません。
 - `commit(_:action:)` は、アニメーションを待たずに判定を確定するため、テストから直接呼んでいます。

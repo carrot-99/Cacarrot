@@ -58,4 +58,13 @@ final class SwipeHistoryStoreTests: XCTestCase {
         let liked = try container.mainContext.fetch(FetchDescriptor(predicate: SwipeRecord.likedPredicate))
         XCTAssertEqual(Set(liked.map(\.mangaID)), [items[0].id, items[1].id])
     }
+
+    func testUpdateActionKeepsCreatedAt() throws {
+        try store.record(items[0], action: .like)
+        let before = try container.mainContext.fetch(FetchDescriptor<SwipeRecord>()).first!.createdAt
+        try store.updateAction(mangaID: items[0].id, to: .superLike)
+        let record = try container.mainContext.fetch(FetchDescriptor<SwipeRecord>()).first!
+        XCTAssertEqual(record.action, .superLike)
+        XCTAssertEqual(record.createdAt, before, "並び順を保つため日時は変えない")
+    }
 }
