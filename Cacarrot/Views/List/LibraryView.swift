@@ -67,6 +67,11 @@ struct LibraryView: View {
             .toolbar {
                 if !records.isEmpty {
                     ToolbarItem(placement: .topBarTrailing) {
+                        ShareLink(item: shareText, subject: Text("Cacarrotのお気に入り")) {
+                            Label("お気に入りを共有", systemImage: "square.and.arrow.up")
+                        }
+                    }
+                    ToolbarItem(placement: .topBarTrailing) {
                         Menu {
                             Picker("並び順", selection: $sortOrder) {
                                 ForEach(SortOrder.allCases) { Text($0.rawValue).tag($0) }
@@ -129,6 +134,16 @@ struct LibraryView: View {
         .animation(.default, value: sortOrder)
     }
 
+    /// 共有する文章（いま表示している一覧。スーパーいいねは ★、いいねは ♥）
+    private var shareText: String {
+        let lines = filtered.map { record in
+            let mark = record.action == .superLike ? "★" : "♥"
+            let author = record.author.isEmpty ? "" : "（\(record.author)）"
+            return "\(mark) \(record.title)\(author)"
+        }
+        return (["Cacarrotのお気に入り"] + lines).joined(separator: "\n")
+    }
+
     /// いいね ⇄ スーパーいいね を切り替える
     private func toggleRatingButton(_ record: SwipeRecord) -> some View {
         let target: SwipeAction = record.action == .superLike ? .like : .superLike
@@ -149,7 +164,8 @@ struct LibraryView: View {
     }
 }
 
-private struct LibraryRow: View {
+/// 作品の行（お気に入り・スキップした作品の一覧で共通）
+struct LibraryRow: View {
     let record: SwipeRecord
 
     var body: some View {

@@ -60,6 +60,7 @@ struct CacarrotApp: App {
         }
         self.container = container
         self.defaults = .standard
+        Haptics.isEnabled = UserDefaults.standard.object(forKey: Haptics.settingKey) as? Bool ?? true
         _deck = State(initialValue: SwipeDeckViewModel(
             repository: BundledMangaRepository(),
             store: SwipeHistoryStore(context: container.mainContext),

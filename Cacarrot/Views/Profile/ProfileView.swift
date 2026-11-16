@@ -9,6 +9,7 @@ struct ProfileView: View {
     @Query private var records: [SwipeRecord]
     @State private var isConfirmingReset = false
     @State private var isShowingGuide = false
+    @AppStorage(Haptics.settingKey) private var isHapticsEnabled = true
 
     private func closeGuide() {
         withAnimation(.easeOut(duration: 0.25)) { isShowingGuide = false }
@@ -71,6 +72,12 @@ struct ProfileView: View {
                     Toggle(isOn: $deck.isRecommendationEnabled) {
                         Label("おすすめ順で表示", systemImage: "sparkles")
                     }
+                    Toggle(isOn: $isHapticsEnabled) {
+                        Label("触覚フィードバック", systemImage: "hand.tap")
+                    }
+                    .onChange(of: isHapticsEnabled) { _, newValue in
+                        Haptics.isEnabled = newValue
+                    }
                     Button {
                         withAnimation(.easeOut(duration: 0.25)) { isShowingGuide = true }
                     } label: {
@@ -81,8 +88,11 @@ struct ProfileView: View {
                 }
 
                 Section {
-                    Button("スキップした作品をデッキに戻す") { deck.restoreSkipped() }
-                        .disabled(count(.nope) == 0)
+                    NavigationLink {
+                        SkippedListView()
+                    } label: {
+                        LabeledContent("スキップした作品", value: "\(count(.nope))")
+                    }
                     Button("すべての履歴をリセット", role: .destructive) { isConfirmingReset = true }
                         .disabled(records.isEmpty)
                 } footer: {

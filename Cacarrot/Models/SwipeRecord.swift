@@ -76,4 +76,10 @@ extension SwipeRecord {
         let nope = SwipeAction.nope.rawValue
         return #Predicate { $0.actionRawValue != nope }
     }
+
+    /// スキップした履歴
+    static var skippedPredicate: Predicate<SwipeRecord> {
+        let nope = SwipeAction.nope.rawValue
+        return #Predicate { $0.actionRawValue == nope }
+    }
 }

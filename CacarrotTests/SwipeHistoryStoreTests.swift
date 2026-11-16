@@ -51,6 +51,13 @@ final class SwipeHistoryStoreTests: XCTestCase {
         XCTAssertEqual(recent.first?.action, .nope)
     }
 
+    func testSkippedPredicateOnlyNope() throws {
+        try store.record(items[0], action: .like)
+        try store.record(items[1], action: .nope)
+        let skipped = try container.mainContext.fetch(FetchDescriptor(predicate: SwipeRecord.skippedPredicate))
+        XCTAssertEqual(skipped.map(\.mangaID), [items[1].id])
+    }
+
     func testLikedPredicateExcludesNope() throws {
         try store.record(items[0], action: .like)
         try store.record(items[1], action: .superLike)

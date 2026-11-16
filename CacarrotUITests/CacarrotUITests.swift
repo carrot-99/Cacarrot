@@ -78,4 +78,24 @@ final class CacarrotUITests: XCTestCase {
         superLike.tap()
         waitForRemaining(5)
     }
+
+    func testRestoreOneSkippedTitleFromMyPage() {
+        closeGuide()
+        app.buttons["action.nope"].tap()
+        waitForRemaining(5)
+
+        app.tabBars.buttons["マイページ"].firstMatch.tap()
+        let skippedLink = app.buttons.containing(NSPredicate(format: "label CONTAINS %@", "スキップした作品")).firstMatch
+        XCTAssertTrue(skippedLink.waitForExistence(timeout: 3))
+        skippedLink.tap()
+
+        let row = app.buttons.containing(.staticText, identifier: "ONE PIECE").firstMatch
+        XCTAssertTrue(row.waitForExistence(timeout: 3))
+        row.swipeLeft()
+        app.buttons["デッキに戻す"].tap()
+        XCTAssertTrue(app.staticTexts["スキップした作品はありません"].waitForExistence(timeout: 3))
+
+        app.tabBars.buttons["さがす"].firstMatch.tap()
+        waitForRemaining(6)
+    }
 }
