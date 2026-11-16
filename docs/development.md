@@ -37,6 +37,7 @@ xcodebuild test -project Cacarrot.xcodeproj -scheme Cacarrot -destination 'platf
 | --- | --- |
 | `RecommendationEngineTests` | 好み度の計算、並べ替え、4枚に1枚の発見枠（乱数は `SeededGenerator` で固定） |
 | `SwipeHistoryStoreTests` | 保存・更新・削除、判定だけの変更、取り消し用の履歴の順番、`likedPredicate` |
+| `SaveFailureTests` | 保存に失敗したとき（`FlakyHistoryStore` で再現）に、カード・取り消し履歴・デッキが壊れず、エラーを表示すること |
 | `SwipeDeckViewModelTests` | しきい値、判定と取り消し、再起動後の取り消し、スキップを戻す・リセット、絞り込み、おすすめ設定の保存、お気に入りの判定変更、利用イベント（偽物の `SpyAnalytics` で確認）、視差効果を減らす |
 
 - テストはメモリ上の SwiftData と、テストごとの UserDefaults を使うので、アプリのデータには影響しません。
