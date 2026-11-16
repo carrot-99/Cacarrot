@@ -15,7 +15,6 @@
 | H1 | **AniList のデータと画像を使ってよいか確認する** | AniList の API 規約では、商用利用に制限があります。同梱したあらすじと表紙画像の権利は、出版社や作者にあります。規約を確認し、使えない場合は別のデータ源（出版社の API、書影 API など）を検討してください |
 | H2 | **プライバシーマニフェスト（PrivacyInfo.xcprivacy）がない** | Firebase Analytics を組み込んでいるため、App Store の審査で必要です。App Privacy の申告も必要です |
 | H3 | **`GoogleService-Info.plist` がないとアプリが落ちる** | Git の管理外なので、クローンしただけではビルドしても起動時に落ちます。ファイルがないときは `FirebaseApp.configure()` を呼ばないようにするか、設定方法をチームで共有してください |
-| H4 | **Git リポジトリになっていない** | まだ `git init` していません。バックアップは `backup-2026-11-15/` だけです |
 | H5 | **テストがない** | テストターゲット自体がありません。最低限、`SwipeDeckViewModel.action(for:)`（しきい値の判定）、`undo` / `forget` / `restoreSkipped`、`SwipeHistoryStore`、`build_app_data.py` の `is_japanese_title` と `clean_description` に単体テストを追加してください |
 
 ## 2. データの課題
@@ -70,3 +69,4 @@
 | DRAGON BALL の作者が間違っていた | 修正（今はプレビュー用のサンプルのみ） |
 | フォルダが他のアプリより 1 段深かった | `Cacarrot.xcodeproj` と `Cacarrot/` をトップに置く構成に変更 |
 | サンプル 6 件のみだった | `manga_info.csv` から 500 件を同梱 |
+| Git リポジトリがなかった | `carrot-99/Cacarrot` を作成して push（2026-11-16） |
