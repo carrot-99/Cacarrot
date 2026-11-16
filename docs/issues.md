@@ -15,7 +15,7 @@
 | H1 | **AniList のデータと画像を使ってよいか確認する**（楽天ブックスへ移行中） | AniList の API 規約では、商用利用に制限があります。同梱したあらすじと表紙画像の権利は、出版社や作者にあります。楽天ブックスAPIへの切り替えを進めています（取得・変換スクリプトとアプリ側は実装済み。楽天のサーバ停止中のため、実データは未取得）。ジャンルは引き続き AniList の値を使うため、その扱いも確認してください |
 | H2 | **App Store Connect の「App のプライバシー」を申告する** | アプリのプライバシーマニフェスト（`Cacarrot/PrivacyInfo.xcprivacy`）は追加済みです。審査の前に、App Store Connect で同じ内容（デバイスID・製品の操作を分析目的で収集、トラッキングなし）を申告してください。Firebase の公式ページ「Data disclosure」とも照合してください |
 | H3 | **`GoogleService-Info.plist` がないとビルド・起動できない**（保留：個人開発のため） | Git の管理外なので、別の環境でクローンした場合に問題になります。共同開発や CI を始めるときに対応してください |
-| H6 | **firebase-ios-sdk が古い（10.23）** | 計測用の GoogleAppMeasurement 10.23 には独自のプライバシーマニフェストがないため、アプリ側で宣言しています。最新版に上げると SDK 側の宣言に任せられます（メジャーバージョンが変わるので動作確認が必要） |
+| H6 | **firebase-ios-sdk が古い（10.23）** | 13.2.0 への更新を試しました（2026-11-16）。ビルドとテストは通りましたが、Analytics の SDK（FirebaseAnalytics / GoogleAppMeasurement）は 13.2 でも独自のプライバシーマニフェストを持たず、広告用の GoogleAdsOnDeviceConversion が新しく組み込まれるため見送りました。更新するときは、`FirebaseAnalyticsWithoutAdIdSupport` に相当する製品を選び、組み込まれるフレームワークを確認してください |
 
 ## 2. データの課題
 
@@ -91,4 +91,5 @@
 | iPad の見た目を確認していなかった（I8） | カードとヘッダーの幅を 520pt までにして中央に配置。使い方の幅も制限。iPhone は縦向きのみに変更（2026-11-16） |
 | 画面（UI）のテストがなかった（I10） | `CacarrotUITests` を追加（ボタンでいいね→取り消し、スワイプ、絞り込み、詳細からの判定）。`-uiTesting` で起動すると、端末のデータに触れずにサンプルで動く（2026-11-16） |
 | データ源を変えると判定済みの作品が再びデッキに出る問題（楽天切り替えで ID が変わるため） | 起動時に、今のデータにない ID の履歴を、タイトルが同じ作品に付け替える（`relinkOrphans`）。同じタイトルが複数ある場合と、新しい ID がすでに判定済みの場合は付け替えない（2026-11-16） |
+| 広告ID（IDFA）用のモジュールが組み込まれていた | Firebase の製品を `FirebaseAnalyticsWithoutAdIdSupport` に変更。GoogleAppMeasurementIdentitySupport が外れ、AdSupport・ATT へのリンクがないことを確認（2026-11-16） |
 | 楽天ブックスへの切り替え準備 | `fetch_rakuten.py`、`build_app_data.py --source rakuten`、詳細シートの購入リンク、マイページのクレジット表記を追加（2026-11-16） |

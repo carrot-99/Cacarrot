@@ -2,7 +2,7 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<!-- 広告目的のトラッキングはしない（IDFA・AdSupport を使っていない） -->
+	<!-- 広告目的のトラッキングはしない（Firebase は広告IDを使わない FirebaseAnalyticsWithoutAdIdSupport を組み込み、AdSupport・ATT にリンクしていない） -->
 	<key>NSPrivacyTracking</key>
 	<false/>
 	<key>NSPrivacyTrackingDomains</key>

@@ -39,7 +39,7 @@
 		CE59D3242BA95F4400A748BA /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CE59D3232BA95F4400A748BA /* Assets.xcassets */; };
 		CE59D3272BA95F4400A748BA /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CE59D3262BA95F4400A748BA /* Preview Assets.xcassets */; };
 		CE59D34F2BAC111D00A748BA /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = CE59D34E2BAC111D00A748BA /* GoogleService-Info.plist */; };
-		CE59D3522BAC13F200A748BA /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = CE59D3512BAC13F200A748BA /* FirebaseAnalytics */; };
+		CE59D3522BAC13F200A748BA /* FirebaseAnalyticsWithoutAdIdSupport in Frameworks */ = {isa = PBXBuildFile; productRef = CE59D3512BAC13F200A748BA /* FirebaseAnalyticsWithoutAdIdSupport */; };
 		D0C3D72D18E4431A876FB6A4 /* SwipeGuideView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1A21B40C6174522A9289EFA /* SwipeGuideView.swift */; };
 		D31C715919D540C79C35DB5F /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0594D7199D3F623D75E0BDF9 /* ProfileView.swift */; };
 		DC15E741209000A4FFE8DA05 /* LibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D29E23C3EA9BC9D823E0880 /* LibraryView.swift */; };
@@ -123,7 +123,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				CE59D3522BAC13F200A748BA /* FirebaseAnalytics in Frameworks */,
+				CE59D3522BAC13F200A748BA /* FirebaseAnalyticsWithoutAdIdSupport in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -358,7 +358,7 @@
 			);
 			name = Cacarrot;
 			packageProductDependencies = (
-				CE59D3512BAC13F200A748BA /* FirebaseAnalytics */,
+				CE59D3512BAC13F200A748BA /* FirebaseAnalyticsWithoutAdIdSupport */,
 			);
 			productName = Cacarrot;
 			productReference = CE59D31C2BA95F4300A748BA /* Cacarrot.app */;
@@ -835,10 +835,10 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		CE59D3512BAC13F200A748BA /* FirebaseAnalytics */ = {
+		CE59D3512BAC13F200A748BA /* FirebaseAnalyticsWithoutAdIdSupport */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = CE59D3502BAC13F200A748BA /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
-			productName = FirebaseAnalytics;
+			productName = FirebaseAnalyticsWithoutAdIdSupport;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

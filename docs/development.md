@@ -7,7 +7,7 @@
 | Xcode | 27.2 で動作確認 |
 | 最低対応 OS | iOS 17.4 |
 | Swift | 5（Swift 5 言語モード） |
-| 依存パッケージ | firebase-ios-sdk 10.23 以上（SPM、FirebaseCore と FirebaseAnalytics） |
+| 依存パッケージ | firebase-ios-sdk 10.23（SPM、`FirebaseAnalyticsWithoutAdIdSupport`。広告ID（IDFA）を使わない版） |
 | Bundle ID | `com.carrot.Cacarrot` |
 | Python | 3（データ変換用。標準ライブラリだけで動く） |
 
