@@ -53,12 +53,30 @@ struct MangaDetailView: View {
             }
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    shareButton
+                }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("閉じる") { dismiss() }
                 }
             }
         }
         .presentationDragIndicator(.visible)
+    }
+
+    /// 作品を共有する（商品ページがあればそのURLも付ける）
+    @ViewBuilder
+    private var shareButton: some View {
+        let message = "『\(manga.title)』\(manga.author.isEmpty ? "" : "（\(manga.author)）")をCacarrotで見つけました"
+        if let itemURL = manga.itemURL {
+            ShareLink(item: itemURL, subject: Text(manga.title), message: Text(message)) {
+                Label("共有", systemImage: "square.and.arrow.up")
+            }
+        } else {
+            ShareLink(item: message, subject: Text(manga.title)) {
+                Label("共有", systemImage: "square.and.arrow.up")
+            }
+        }
     }
 
     /// 購入リンクと、デッキから開いた場合の判定ボタン
