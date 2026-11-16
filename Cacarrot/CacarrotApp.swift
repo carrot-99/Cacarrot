@@ -32,7 +32,8 @@ struct CacarrotApp: App {
         self.container = container
         _deck = State(initialValue: SwipeDeckViewModel(
             repository: BundledMangaRepository(),
-            store: SwipeHistoryStore(context: container.mainContext)
+            store: SwipeHistoryStore(context: container.mainContext),
+            analytics: FirebaseAnalyticsLogger()
         ))
     }
 

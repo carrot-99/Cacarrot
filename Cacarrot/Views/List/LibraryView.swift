@@ -95,7 +95,16 @@ struct LibraryView: View {
             }
 
             if filtered.isEmpty {
-                ContentUnavailableView.search(text: searchText)
+                if searchText.isEmpty {
+                    // 検索していないのに空 ＝ 選んだ種類（スーパー / いいね）の作品がない
+                    ContentUnavailableView("まだありません",
+                                           systemImage: filter == .superLike ? "star" : "heart",
+                                           description: Text(filter == .superLike
+                                                             ? "「さがす」タブで上にスワイプした作品が、ここに表示されます。"
+                                                             : "「さがす」タブで右にスワイプした作品が、ここに表示されます。"))
+                } else {
+                    ContentUnavailableView.search(text: searchText)
+                }
             }
 
             ForEach(filtered) { record in

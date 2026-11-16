@@ -37,6 +37,8 @@ final class SwipeDeckViewModel {
     var usesRakutenData: Bool { allManga.contains { $0.itemURL != nil } }
     /// 保存に失敗したときのメッセージ（表示したら nil に戻す）
     var errorMessage: String?
+    /// 「視差効果を減らす」設定。オンなら、カードを画面外へ飛ばさずにその場で入れ替える
+    var reduceMotion = false
 
     // MARK: - 設定値
 
@@ -58,6 +60,7 @@ final class SwipeDeckViewModel {
         didSet {
             guard isRecommendationEnabled != oldValue else { return }
             defaults.set(isRecommendationEnabled, forKey: Self.recommendationKey)
+            analytics.log(.setRecommendation(enabled: isRecommendationEnabled))
             withAnimation(.spring) { reorderRemaining() }
         }
     }
@@ -79,6 +82,7 @@ final class SwipeDeckViewModel {
         guard genres != selectedGenres else { return }
         selectedGenres = genres
         defaults.set(Array(genres).sorted(), forKey: Self.genreFilterKey)
+        analytics.log(.applyGenreFilter(genreCount: genres.count))
         withAnimation(.spring) { rebuildDeck(resetHistory: false) }
     }
 
@@ -105,6 +109,7 @@ final class SwipeDeckViewModel {
     private let recommender: RecommendationEngine
     private let imageLoader: ImageLoader
     private let defaults: UserDefaults
+    private let analytics: AnalyticsLogging
     private var allManga: [Manga] = []
     private var history: [(manga: Manga, action: SwipeAction)] = []
     private var pendingAction: SwipeAction?
@@ -116,8 +121,10 @@ final class SwipeDeckViewModel {
          store: SwipeHistoryStore,
          recommender: RecommendationEngine = RecommendationEngine(),
          imageLoader: ImageLoader = .shared,
-         defaults: UserDefaults = .standard) {
+         defaults: UserDefaults = .standard,
+         analytics: AnalyticsLogging = NoopAnalyticsLogger()) {
         self.repository = repository
+        self.analytics = analytics
         self.store = store
         self.recommender = recommender
         self.imageLoader = imageLoader
@@ -210,7 +217,7 @@ final class SwipeDeckViewModel {
         pendingAction = nil
         // 指を離した位置、または勢い（予測位置）でしきい値を超えたら確定
         if let action = Self.action(for: translation) ?? Self.action(for: predicted, scale: 2) {
-            swipe(action)
+            swipe(action, source: .gesture)
         } else {
             withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
                 dragOffset = .zero
@@ -242,18 +249,27 @@ final class SwipeDeckViewModel {
     // MARK: - アクション
 
     /// カードを判定して画面外へ飛ばす（ボタン・ドラッグ共通）
-    func swipe(_ action: SwipeAction) {
+    func swipe(_ action: SwipeAction, source: SwipeSource = .button) {
         guard let card = topCard, !isAnimating else { return }
+        if reduceMotion {
+            commit(card, action: action, source: source)
+            return
+        }
         exitingAction = action
         withAnimation(.easeIn(duration: 0.28), completionCriteria: .logicallyComplete) {
             dragOffset = action.exitOffset(in: cardSize)
         } completion: { [weak self] in
-            self?.commit(card, action: action)
+            self?.commit(card, action: action, source: source)
         }
     }
 
+    /// 画面側の操作を記録する（詳細を開いた、など）
+    func track(_ event: AnalyticsEvent) {
+        analytics.log(event)
+    }
+
     /// 判定を保存してデッキから外す（アニメーション完了後に呼ばれる。テストから直接呼ぶため internal）
-    func commit(_ card: Manga, action: SwipeAction) {
+    func commit(_ card: Manga, action: SwipeAction, source: SwipeSource = .button) {
         do {
             try store.record(card, action: action)
         } catch {
@@ -267,12 +283,14 @@ final class SwipeDeckViewModel {
         }
         swipedIDs.insert(card.id)
         history.append((card, action))
+        analytics.log(.swipe(action: action, source: source))
         action == .superLike ? Haptics.success() : Haptics.impact()
-        withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+        withAnimation(reduceMotion ? .easeInOut(duration: 0.2) : .spring(response: 0.35, dampingFraction: 0.8)) {
             cards.removeAll { $0.id == card.id }
             dragOffset = .zero
             exitingAction = nil
         }
+        if cards.isEmpty { analytics.log(.deckFinished) }
         swipesSinceRerank += 1
         if isRecommendationEnabled, swipesSinceRerank >= Self.rerankInterval {
             reorderRemaining()  // 見えていないカードだけを並べ直すのでアニメーション不要
@@ -292,6 +310,7 @@ final class SwipeDeckViewModel {
             return
         }
         swipedIDs.remove(last.manga.id)
+        analytics.log(.undo)
         Haptics.impact(.soft)
         withAnimation(.spring(response: 0.4, dampingFraction: 0.75)) {
             cards.insert(last.manga, at: 0)

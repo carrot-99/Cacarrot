@@ -8,6 +8,7 @@ struct MainView: View {
     @State private var detailManga: Manga?
     @State private var isShowingFilter = false
     @AppStorage("hasSeenSwipeGuide") private var hasSeenSwipeGuide = false
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
         VStack(spacing: 12) {
@@ -25,11 +26,14 @@ struct MainView: View {
         }
         .background(Color(.systemGroupedBackground))
         .task { await deck.loadIfNeeded() }
+        .onChange(of: reduceMotion, initial: true) { _, newValue in
+            deck.reduceMotion = newValue
+        }
         .sheet(item: $detailManga) { manga in
             MangaDetailView(manga: manga, onDecide: { action in
                 // 詳細を開いたのは一番上のカードなので、そのまま判定する
                 guard deck.topCard?.id == manga.id else { return }
-                deck.swipe(action)
+                deck.swipe(action, source: .detail)
             })
         }
         .sheet(isPresented: $isShowingFilter) {
@@ -70,7 +74,10 @@ struct MainView: View {
             if deck.cards.isEmpty {
                 EmptyDeckView()
             } else {
-                CardStackView(onTapCard: { detailManga = $0 })
+                CardStackView(onTapCard: { manga in
+                    detailManga = manga
+                    deck.track(.openDetail)
+                })
             }
         }
     }
