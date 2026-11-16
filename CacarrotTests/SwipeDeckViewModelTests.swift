@@ -4,12 +4,19 @@ import XCTest
 import SwiftData
 @testable import Cacarrot
 
+/// 記録されたイベントを保持するだけの偽物
+final class SpyAnalytics: AnalyticsLogging, @unchecked Sendable {
+    private(set) var events: [AnalyticsEvent] = []
+    func log(_ event: AnalyticsEvent) { events.append(event) }
+}
+
 @MainActor
 final class SwipeDeckViewModelTests: XCTestCase {
     private var container: ModelContainer!
     private var store: SwipeHistoryStore!
     private var defaults: UserDefaults!
     private var suiteName: String!
+    private var analytics: SpyAnalytics!
     private let items = SampleMangaRepository.items
 
     override func setUp() async throws {
@@ -18,6 +25,7 @@ final class SwipeDeckViewModelTests: XCTestCase {
         store = SwipeHistoryStore(context: container.mainContext)
         suiteName = "CacarrotTests.\(UUID().uuidString)"
         defaults = UserDefaults(suiteName: suiteName)
+        analytics = SpyAnalytics()
     }
 
     override func tearDown() async throws {
@@ -27,7 +35,8 @@ final class SwipeDeckViewModelTests: XCTestCase {
     /// サンプル6件を、元の順番のまま読み込んだデッキ
     private func makeDeck(recommendation: Bool = false) async -> SwipeDeckViewModel {
         defaults.set(recommendation, forKey: "isRecommendationEnabled")
-        let deck = SwipeDeckViewModel(repository: SampleMangaRepository(), store: store, defaults: defaults)
+        let deck = SwipeDeckViewModel(repository: SampleMangaRepository(), store: store,
+                                      defaults: defaults, analytics: analytics)
         await deck.loadIfNeeded()
         return deck
     }
@@ -174,5 +183,45 @@ final class SwipeDeckViewModelTests: XCTestCase {
         deck.undo()
         XCTAssertEqual(deck.topCard?.id, card.id)
         XCTAssertTrue(store.swipedIDs().isEmpty)
+    }
+
+    // MARK: - 利用イベント
+
+    func testAnalyticsEvents() async {
+        let deck = await makeDeck()
+        deck.commit(deck.cards[0], action: .like, source: .gesture)
+        deck.undo()
+        deck.setGenreFilter(["ギャグ"])
+        deck.isRecommendationEnabled = true
+        XCTAssertEqual(analytics.events, [
+            .swipe(action: .like, source: .gesture),
+            .undo,
+            .applyGenreFilter(genreCount: 1),
+            .setRecommendation(enabled: true),
+        ])
+        XCTAssertEqual(AnalyticsEvent.swipe(action: .superLike, source: .detail).parameters,
+                       ["action": "superLike", "source": "detail"])
+    }
+
+    func testDeckFinishedIsLoggedOnce() async {
+        let deck = await makeDeck()
+        while let card = deck.topCard {
+            deck.commit(card, action: .nope)
+        }
+        XCTAssertEqual(analytics.events.filter { $0 == .deckFinished }.count, 1)
+    }
+
+    // MARK: - 視差効果を減らす
+
+    func testReduceMotionCommitsImmediately() async {
+        let deck = await makeDeck()
+        deck.reduceMotion = true
+        let top = deck.topCard!
+        deck.swipe(.like)
+        // アニメーションを待たずに確定する
+        XCTAssertNotEqual(deck.topCard?.id, top.id)
+        XCTAssertTrue(store.swipedIDs().contains(top.id))
+        XCTAssertFalse(deck.isAnimating)
+        XCTAssertEqual(analytics.events.last, .swipe(action: .like, source: .button))
     }
 }

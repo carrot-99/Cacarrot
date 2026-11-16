@@ -5,6 +5,7 @@ import SwiftUI
 /// カードを重ねて表示し、一番上のカードだけドラッグ可能にする
 struct CardStackView: View {
     @Environment(SwipeDeckViewModel.self) private var deck
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     var onTapCard: (Manga) -> Void = { _ in }
 
     /// 描画するカードの最大枚数（パフォーマンス対策）
@@ -37,14 +38,15 @@ struct CardStackView: View {
             superLikeOpacity: deck.stampOpacity(for: .superLike)
         )
         .offset(deck.dragOffset)
-        .rotationEffect(.degrees(Double(deck.dragOffset.width / 20)), anchor: .bottom)
+        // 「視差効果を減らす」がオンのときは、カードを傾けない
+        .rotationEffect(.degrees(reduceMotion ? 0 : Double(deck.dragOffset.width / 20)), anchor: .bottom)
         .gesture(
             DragGesture()
                 .onChanged { deck.dragChanged($0.translation) }
                 .onEnded { deck.dragEnded(translation: $0.translation, predicted: $0.predictedEndTranslation) }
         )
         .onTapGesture { onTapCard(manga) }
-        .transition(.scale(scale: 0.9).combined(with: .opacity))
+        .transition(reduceMotion ? .opacity : .scale(scale: 0.9).combined(with: .opacity))
         .accessibilityElement(children: .combine)
         .accessibilityHint("右スワイプでいいね、左でスキップ、上でスーパーいいね。ダブルタップで詳細")
         .accessibilityAction(named: SwipeAction.like.displayName) { deck.swipe(.like) }

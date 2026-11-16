@@ -14,6 +14,7 @@ __pycache__/
 # Large raw data
 MangaInfoFetcher/*.csv
 MangaInfoFetcher/rakuten_raw.json
+MangaInfoFetcher/fetch_state.json
 
 # API keys
 .env

@@ -37,7 +37,7 @@ xcodebuild test -project Cacarrot.xcodeproj -scheme Cacarrot -destination 'platf
 | --- | --- |
 | `RecommendationEngineTests` | 好み度の計算、並べ替え、4枚に1枚の発見枠（乱数は `SeededGenerator` で固定） |
 | `SwipeHistoryStoreTests` | 保存・更新・削除、判定だけの変更、取り消し用の履歴の順番、`likedPredicate` |
-| `SwipeDeckViewModelTests` | しきい値、判定と取り消し、再起動後の取り消し、スキップを戻す・リセット、絞り込み、おすすめ設定の保存、お気に入りの判定変更 |
+| `SwipeDeckViewModelTests` | しきい値、判定と取り消し、再起動後の取り消し、スキップを戻す・リセット、絞り込み、おすすめ設定の保存、お気に入りの判定変更、利用イベント（偽物の `SpyAnalytics` で確認）、視差効果を減らす |
 
 - テストはメモリ上の SwiftData と、テストごとの UserDefaults を使うので、アプリのデータには影響しません。
 - `commit(_:action:)` は、アニメーションを待たずに判定を確定するため、テストから直接呼んでいます。
@@ -77,12 +77,13 @@ cd MangaInfoFetcher && python3 fetch_rakuten.py
 
 ### AniList から（旧方式）
 
-1. 必要なら AniList から取得し直します。`query.py` の `start_page` を確認してから実行してください。
+1. 必要なら AniList から取得し直します。前回の続きのページから取得します（`MangaInfoFetcher/fetch_state.json` に保存。Git 管理外）。
    - 1 ページごとに 40 秒待つため、全件の取得には長い時間がかかります。
-   - `requests` が必要なので、venv を使います。
+   - 標準ライブラリだけで動くので、venv は不要です（ルートの `venv/` は使っていません）。
+   - `--start-page 1` で最初から、`--max-pages 10` で取得するページ数を制限できます。
 
 ```bash
-source venv/bin/activate && cd MangaInfoFetcher && python query.py
+cd MangaInfoFetcher && python3 query.py
 ```
 
 2. アプリ用の JSON を作り直します。

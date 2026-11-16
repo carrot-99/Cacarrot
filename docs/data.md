@@ -36,7 +36,9 @@ flowchart LR
 **取得の仕方**
 - AniList の GraphQL API（`https://graphql.anilist.co`）から、`type: MANGA` の作品を 1 ページ 50 件ずつ取得し、`manga_info.csv` に追記します。
 - レート制限を避けるため、1 ページごとに 40 秒待ちます。
-- 再開するページは、スクリプト内の `start_page` を書き換えて指定します（現在は 1995）。
+- 1ページ書き込むたびに、次に取得するページを `fetch_state.json` に保存します。次回はそこから再開します。
+  - 状態ファイルがなく CSV がある場合は、以前の再開ページ（1995）から始めます。`--start-page` で指定もできます。
+- urllib の既定の User-Agent は Cloudflare に拒否されるため、`CacarrotDataFetcher/1.0` を付けて送ります。
 
 **CSV の列**
 

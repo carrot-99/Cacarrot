@@ -12,6 +12,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 import build_app_data as b  # noqa: E402
 import fetch_rakuten as f  # noqa: E402
+import query as q  # noqa: E402
 
 
 def item(title, author="芥見 下々", caption="あらすじです。", isbn="9784088815169",
@@ -160,6 +161,33 @@ class FetchRakutenTests(unittest.TestCase):
 
     def test_explain_error(self):
         self.assertIn("IP", f.explain_error('HTTP 403: {"error":"CLIENT_IP_NOT_ALLOWED"}'))
+
+
+class QueryResumeTests(unittest.TestCase):
+    """query.py の再開ページの決め方"""
+
+    def setUp(self):
+        import tempfile
+        self.tmp = tempfile.TemporaryDirectory()
+        tmp = Path(self.tmp.name)
+        self.saved = (q.CSV_FILE, q.STATE_FILE)
+        q.CSV_FILE, q.STATE_FILE = tmp / "manga_info.csv", tmp / "fetch_state.json"
+
+    def tearDown(self):
+        q.CSV_FILE, q.STATE_FILE = self.saved
+        self.tmp.cleanup()
+
+    def test_starts_from_first_page_without_csv(self):
+        self.assertEqual(q.load_next_page(), 1)
+
+    def test_falls_back_to_legacy_page_when_csv_exists(self):
+        q.CSV_FILE.write_text("ID\n1\n", encoding="utf-8")
+        self.assertEqual(q.load_next_page(), q.LEGACY_START_PAGE)
+
+    def test_state_file_wins(self):
+        q.CSV_FILE.write_text("ID\n1\n", encoding="utf-8")
+        q.save_next_page(2100)
+        self.assertEqual(q.load_next_page(), 2100)
 
 
 if __name__ == "__main__":
