@@ -29,6 +29,10 @@ final class SwipeDeckViewModel {
     var canUndo: Bool { !history.isEmpty && !isAnimating }
     var remainingCount: Int { cards.count }
     var totalCount: Int { allManga.count }
+    /// 判定済みの作品数（絞り込みに関係なく、全作品のうち）
+    var checkedCount: Int { allManga.lazy.filter { self.swipedIDs.contains($0.id) }.count }
+    /// 絞り込み条件に合う作品数（判定済みを含む）
+    var filteredTotalCount: Int { allManga.lazy.filter { self.matchesFilter($0) }.count }
     /// 楽天ブックスのデータを使っているか（クレジット表記の切り替えに使う）
     var usesRakutenData: Bool { allManga.contains { $0.itemURL != nil } }
 
@@ -56,6 +60,40 @@ final class SwipeDeckViewModel {
 
     private static let recommendationKey = "isRecommendationEnabled"
 
+    // MARK: - ジャンルの絞り込み
+
+    /// 選択中のジャンル（空なら絞り込みなし。いずれかのジャンルを含む作品を表示）
+    private(set) var selectedGenres: Set<String> = []
+    /// 絞り込みに使えるジャンルと作品数（作品数の多い順）
+    private(set) var availableGenres: [(name: String, count: Int)] = []
+    var isFiltering: Bool { !selectedGenres.isEmpty }
+
+    private static let genreFilterKey = "selectedGenres"
+
+    /// 絞り込みを変更してデッキを作り直す（取り消し履歴は残す）
+    func setGenreFilter(_ genres: Set<String>) {
+        guard genres != selectedGenres else { return }
+        selectedGenres = genres
+        defaults.set(Array(genres).sorted(), forKey: Self.genreFilterKey)
+        withAnimation(.spring) { rebuildDeck(resetHistory: false) }
+    }
+
+    private func matchesFilter(_ manga: Manga) -> Bool {
+        selectedGenres.isEmpty || manga.genres.contains(where: selectedGenres.contains)
+    }
+
+    private func updateAvailableGenres() {
+        var counts: [String: Int] = [:]
+        for manga in allManga {
+            for genre in manga.genres { counts[genre, default: 0] += 1 }
+        }
+        availableGenres = counts
+            .sorted { $0.value != $1.value ? $0.value > $1.value : $0.key < $1.key }
+            .map { (name: $0.key, count: $0.value) }
+        // データ更新で存在しなくなったジャンルは選択から外す
+        selectedGenres = selectedGenres.filter { counts[$0] != nil }
+    }
+
     // MARK: - 依存
 
     private let repository: MangaRepository
@@ -67,6 +105,8 @@ final class SwipeDeckViewModel {
     private var history: [(manga: Manga, action: SwipeAction)] = []
     private var pendingAction: SwipeAction?
     private var swipesSinceRerank = 0
+    /// 判定済みの作品ID（SwiftData への問い合わせを減らすためのキャッシュ）
+    private var swipedIDs: Set<Int> = []
 
     init(repository: MangaRepository,
          store: SwipeHistoryStore,
@@ -79,6 +119,7 @@ final class SwipeDeckViewModel {
         self.imageLoader = imageLoader
         self.defaults = defaults
         self.isRecommendationEnabled = defaults.object(forKey: Self.recommendationKey) as? Bool ?? true
+        self.selectedGenres = Set(defaults.stringArray(forKey: Self.genreFilterKey) ?? [])
     }
 
     // MARK: - 読み込み
@@ -92,6 +133,7 @@ final class SwipeDeckViewModel {
         loadState = .loading
         do {
             allManga = try await repository.fetchAll()
+            updateAvailableGenres()
             rebuildDeck()
             loadState = .loaded
         } catch {
@@ -99,14 +141,14 @@ final class SwipeDeckViewModel {
         }
     }
 
-    private func rebuildDeck() {
-        let swiped = store.swipedIDs()
-        let remaining = allManga.filter { !swiped.contains($0.id) }
+    private func rebuildDeck(resetHistory: Bool = true) {
+        swipedIDs = store.swipedIDs()
+        let remaining = allManga.filter { !swipedIDs.contains($0.id) && matchesFilter($0) }
         cards = isRecommendationEnabled
             ? recommender.rank(remaining, affinity: currentAffinity())
             : remaining
         dragOffset = .zero
-        history.removeAll()
+        if resetHistory { history.removeAll() }
         swipesSinceRerank = 0
         prefetchUpcoming()
     }
@@ -195,6 +237,7 @@ final class SwipeDeckViewModel {
 
     private func commit(_ card: Manga, action: SwipeAction) {
         store.record(card, action: action)
+        swipedIDs.insert(card.id)
         history.append((card, action))
         action == .superLike ? Haptics.success() : Haptics.impact()
         withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
@@ -214,6 +257,7 @@ final class SwipeDeckViewModel {
     func undo() {
         guard canUndo, let last = history.popLast() else { return }
         store.remove(mangaID: last.manga.id)
+        swipedIDs.remove(last.manga.id)
         Haptics.impact(.soft)
         withAnimation(.spring(response: 0.4, dampingFraction: 0.75)) {
             cards.insert(last.manga, at: 0)
@@ -236,8 +280,10 @@ final class SwipeDeckViewModel {
     /// リスト画面から削除された作品をデッキの末尾に戻す
     func forget(mangaID: Int) {
         store.remove(mangaID: mangaID)
+        swipedIDs.remove(mangaID)
         history.removeAll { $0.manga.id == mangaID }
         if let manga = allManga.first(where: { $0.id == mangaID }),
+           matchesFilter(manga),
            !cards.contains(where: { $0.id == mangaID }) {
             cards.append(manga)
         }

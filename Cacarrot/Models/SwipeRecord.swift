@@ -49,3 +49,11 @@ final class SwipeRecord {
               itemURL: itemURLString.flatMap(URL.init(string:)))
     }
 }
+
+extension SwipeRecord {
+    /// いいね・スーパーいいねした履歴（#Predicate の中では enum を直接使えないため rawValue で比較する）
+    static var likedPredicate: Predicate<SwipeRecord> {
+        let nope = SwipeAction.nope.rawValue
+        return #Predicate { $0.actionRawValue != nope }
+    }
+}

@@ -13,7 +13,7 @@ struct LibraryView: View {
     }
 
     @Environment(SwipeDeckViewModel.self) private var deck
-    @Query(filter: #Predicate<SwipeRecord> { $0.actionRawValue != "nope" },
+    @Query(filter: SwipeRecord.likedPredicate,
            sort: \SwipeRecord.createdAt, order: .reverse)
     private var records: [SwipeRecord]
 

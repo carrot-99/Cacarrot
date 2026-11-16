@@ -68,7 +68,7 @@ flowchart TD
 | --- | --- |
 | `Manga` | カード 1 枚分の作品データ（id・タイトル・作者・ジャンル・あらすじ・`imageName?`・`imageURL?`・`publisher?`・`itemURL?`）。値型でイミュータブル、`Codable` |
 | `SwipeAction` | ユーザーの判定。`like` / `superLike` / `nope` の 3 つ。スタンプの文字・表示名・SF Symbols・色・画面外へ飛ぶ方向（`exitOffset(in:)`）を持つ |
-| `SwipeRecord` | 判定の履歴。SwiftData の `@Model`。`mangaID` はユニーク。一覧表示用に作品情報のコピーを持ち、`manga` で `Manga` に戻せる |
+| `SwipeRecord` | 判定の履歴。SwiftData の `@Model`。`mangaID` はユニーク。一覧表示用に作品情報のコピーを持ち、`manga` で `Manga` に戻せる。`likedPredicate` は、いいね・スーパーいいねだけを取り出す `@Query` 用の条件 |
 
 ### Services（`Cacarrot/Services`）
 
@@ -100,6 +100,8 @@ flowchart TD
 | 表示 | `stampOpacity(for:)` | GOOD / NOPE / SUPER スタンプの濃さ |
 | おすすめ | `isRecommendationEnabled` | おすすめ順のオン・オフ。UserDefaults に保存。切り替えると、見えている上の3枚以外を並べ直す |
 | 先読み | （内部）`prefetchUpcoming()` | デッキを作ったとき・判定のたびに、上から6枚の表紙を先読みする |
+| 絞り込み | `selectedGenres` / `availableGenres` / `setGenreFilter(_:)` | ジャンルでデッキを絞り込む（いずれかのジャンルを含む作品）。選択は UserDefaults に保存。変更してもデッキを作り直すだけで、取り消し履歴は残す |
+| 件数 | `remainingCount` / `filteredTotalCount` / `checkedCount` | 残り（絞り込み後）、絞り込み条件に合う全作品数、判定済みの数（絞り込みに関係なく全作品のうち） |
 
 ### Utilities（`Cacarrot/Utilities`）
 
@@ -177,10 +179,10 @@ Cacarrot/
 │   ├── Services/
 │   ├── ViewModels/
 │   ├── Views/
-│   │   ├── Main/             さがす（カード・ボタン・ヘッダー）
+│   │   ├── Main/             さがす（カード・ボタン・ヘッダー・ジャンル絞り込み）
 │   │   ├── List/             お気に入り
 │   │   ├── Profile/          マイページ
-│   │   └── Shared/           表紙・ジャンルタグ・詳細シート・プレビュー
+│   │   └── Shared/           表紙・ジャンルタグ・詳細シート・使い方・プレビュー
 │   ├── Utilities/
 │   ├── Resources/manga.json  同梱データ（自動生成）
 │   └── Assets.xcassets

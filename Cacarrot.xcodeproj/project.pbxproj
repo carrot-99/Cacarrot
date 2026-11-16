@@ -23,6 +23,7 @@
 		4E86DB7AD06275B9E7AA1E02 /* SwipeCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1ABC1EECE6980AB220D28EC6 /* SwipeCardView.swift */; };
 		ADE438389C2107D188527DDF /* ActionBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5CA8BFC1F674E91874C4C5 /* ActionBarView.swift */; };
 		EDB1AD1791453D126680B6AD /* EmptyDeckView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A880E8AF2F442C64E9243E1 /* EmptyDeckView.swift */; };
+		FC20FDA831F64A8FAA2DCF0C /* GenreFilterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AC7E74F698E495D8A7F084E /* GenreFilterView.swift */; };
 		DC15E741209000A4FFE8DA05 /* LibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D29E23C3EA9BC9D823E0880 /* LibraryView.swift */; };
 		D31C715919D540C79C35DB5F /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0594D7199D3F623D75E0BDF9 /* ProfileView.swift */; };
 		14EBBCCE332F821F087F2E3C /* Haptics.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB75FF464FD033C5834C1689 /* Haptics.swift */; };
@@ -34,6 +35,7 @@
 		98C14EC9C1CD40028947898F /* MangaCoverView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 870C817854F6E3AD8659F9ED /* MangaCoverView.swift */; };
 		04B91D078BEC3E1ADB097B8B /* GenreTagsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4585000748037AAE0F5EB58 /* GenreTagsView.swift */; };
 		736C028902742673DA771A50 /* MangaDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4B07531CD7C05B15964801F /* MangaDetailView.swift */; };
+		D0C3D72D18E4431A876FB6A4 /* SwipeGuideView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1A21B40C6174522A9289EFA /* SwipeGuideView.swift */; };
 		4C7C3D6FE8D250B07347E81F /* PreviewContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F5ECA6D857D3C247B18442D /* PreviewContainer.swift */; };
 		C0FFEE000000000000000003 /* manga.json in Resources */ = {isa = PBXBuildFile; fileRef = C0FFEE000000000000000002 /* manga.json */; };
 /* End PBXBuildFile section */
@@ -55,6 +57,7 @@
 		1ABC1EECE6980AB220D28EC6 /* SwipeCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwipeCardView.swift; sourceTree = "<group>"; };
 		EF5CA8BFC1F674E91874C4C5 /* ActionBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionBarView.swift; sourceTree = "<group>"; };
 		5A880E8AF2F442C64E9243E1 /* EmptyDeckView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyDeckView.swift; sourceTree = "<group>"; };
+		3AC7E74F698E495D8A7F084E /* GenreFilterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenreFilterView.swift; sourceTree = "<group>"; };
 		8D29E23C3EA9BC9D823E0880 /* LibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryView.swift; sourceTree = "<group>"; };
 		0594D7199D3F623D75E0BDF9 /* ProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileView.swift; sourceTree = "<group>"; };
 		FB75FF464FD033C5834C1689 /* Haptics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Haptics.swift; sourceTree = "<group>"; };
@@ -66,6 +69,7 @@
 		870C817854F6E3AD8659F9ED /* MangaCoverView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MangaCoverView.swift; sourceTree = "<group>"; };
 		B4585000748037AAE0F5EB58 /* GenreTagsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenreTagsView.swift; sourceTree = "<group>"; };
 		D4B07531CD7C05B15964801F /* MangaDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MangaDetailView.swift; sourceTree = "<group>"; };
+		A1A21B40C6174522A9289EFA /* SwipeGuideView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwipeGuideView.swift; sourceTree = "<group>"; };
 		1F5ECA6D857D3C247B18442D /* PreviewContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewContainer.swift; sourceTree = "<group>"; };
 		C0FFEE000000000000000002 /* manga.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = manga.json; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -152,6 +156,7 @@
 				1ABC1EECE6980AB220D28EC6 /* SwipeCardView.swift */,
 				EF5CA8BFC1F674E91874C4C5 /* ActionBarView.swift */,
 				5A880E8AF2F442C64E9243E1 /* EmptyDeckView.swift */,
+				3AC7E74F698E495D8A7F084E /* GenreFilterView.swift */,
 			);
 			path = Main;
 			sourceTree = "<group>";
@@ -208,6 +213,7 @@
 				870C817854F6E3AD8659F9ED /* MangaCoverView.swift */,
 				B4585000748037AAE0F5EB58 /* GenreTagsView.swift */,
 				D4B07531CD7C05B15964801F /* MangaDetailView.swift */,
+				A1A21B40C6174522A9289EFA /* SwipeGuideView.swift */,
 				1F5ECA6D857D3C247B18442D /* PreviewContainer.swift */,
 			);
 			path = Shared;
@@ -311,6 +317,7 @@
 				4E86DB7AD06275B9E7AA1E02 /* SwipeCardView.swift in Sources */,
 				ADE438389C2107D188527DDF /* ActionBarView.swift in Sources */,
 				EDB1AD1791453D126680B6AD /* EmptyDeckView.swift in Sources */,
+				FC20FDA831F64A8FAA2DCF0C /* GenreFilterView.swift in Sources */,
 				DC15E741209000A4FFE8DA05 /* LibraryView.swift in Sources */,
 				D31C715919D540C79C35DB5F /* ProfileView.swift in Sources */,
 				14EBBCCE332F821F087F2E3C /* Haptics.swift in Sources */,
@@ -322,6 +329,7 @@
 				98C14EC9C1CD40028947898F /* MangaCoverView.swift in Sources */,
 				04B91D078BEC3E1ADB097B8B /* GenreTagsView.swift in Sources */,
 				736C028902742673DA771A50 /* MangaDetailView.swift in Sources */,
+				D0C3D72D18E4431A876FB6A4 /* SwipeGuideView.swift in Sources */,
 				4C7C3D6FE8D250B07347E81F /* PreviewContainer.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
