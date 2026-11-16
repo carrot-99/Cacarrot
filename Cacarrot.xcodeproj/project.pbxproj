@@ -42,6 +42,7 @@
 		CE59D3522BAC13F200A748BA /* FirebaseAnalyticsWithoutAdIdSupport in Frameworks */ = {isa = PBXBuildFile; productRef = CE59D3512BAC13F200A748BA /* FirebaseAnalyticsWithoutAdIdSupport */; };
 		D0C3D72D18E4431A876FB6A4 /* SwipeGuideView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1A21B40C6174522A9289EFA /* SwipeGuideView.swift */; };
 		D31C715919D540C79C35DB5F /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0594D7199D3F623D75E0BDF9 /* ProfileView.swift */; };
+		9B650A501C2343DFA0E15AE8 /* SkippedListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEEB3DCE5424449999ACC1B9 /* SkippedListView.swift */; };
 		DC15E741209000A4FFE8DA05 /* LibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D29E23C3EA9BC9D823E0880 /* LibraryView.swift */; };
 		E63583DB054CF7FC96C2A60C /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = A1D371A73B0871F6F0E5DC47 /* PrivacyInfo.xcprivacy */; };
 		EDB1AD1791453D126680B6AD /* EmptyDeckView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A880E8AF2F442C64E9243E1 /* EmptyDeckView.swift */; };
@@ -68,6 +69,7 @@
 
 /* Begin PBXFileReference section */
 		0594D7199D3F623D75E0BDF9 /* ProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileView.swift; sourceTree = "<group>"; };
+		BEEB3DCE5424449999ACC1B9 /* SkippedListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkippedListView.swift; sourceTree = "<group>"; };
 		109D5C9C9054FCA80173BD80 /* CacarrotUITests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CacarrotUITests.swift; sourceTree = "<group>"; };
 		1ABC1EECE6980AB220D28EC6 /* SwipeCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwipeCardView.swift; sourceTree = "<group>"; };
 		1D7FC978CABBE969B22704AB /* CacarrotTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CacarrotTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -310,6 +312,7 @@
 			isa = PBXGroup;
 			children = (
 				0594D7199D3F623D75E0BDF9 /* ProfileView.swift */,
+				BEEB3DCE5424449999ACC1B9 /* SkippedListView.swift */,
 			);
 			path = Profile;
 			sourceTree = "<group>";
@@ -488,6 +491,7 @@
 				FC20FDA831F64A8FAA2DCF0C /* GenreFilterView.swift in Sources */,
 				DC15E741209000A4FFE8DA05 /* LibraryView.swift in Sources */,
 				D31C715919D540C79C35DB5F /* ProfileView.swift in Sources */,
+				9B650A501C2343DFA0E15AE8 /* SkippedListView.swift in Sources */,
 				14EBBCCE332F821F087F2E3C /* Haptics.swift in Sources */,
 				35A0019BCC3823CD268EF0A5 /* Theme.swift in Sources */,
 				91833878092DEC31B4FD58CE /* MangaRepository.swift in Sources */,
