@@ -105,7 +105,7 @@ final class SwipeDeckViewModel {
     // MARK: - 依存
 
     private let repository: MangaRepository
-    private let store: SwipeHistoryStore
+    private let store: any SwipeHistoryStoring
     private let recommender: RecommendationEngine
     private let imageLoader: ImageLoader
     private let defaults: UserDefaults
@@ -118,7 +118,7 @@ final class SwipeDeckViewModel {
     private var swipedIDs: Set<Int> = []
 
     init(repository: MangaRepository,
-         store: SwipeHistoryStore,
+         store: any SwipeHistoryStoring,
          recommender: RecommendationEngine = RecommendationEngine(),
          imageLoader: ImageLoader = .shared,
          defaults: UserDefaults = .standard,

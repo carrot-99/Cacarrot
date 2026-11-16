@@ -77,7 +77,8 @@ flowchart TD
 | `MangaRepository` | 作品データの取得元を表すプロトコル（`fetchAll() async throws -> [Manga]`）。API や Firestore に差し替えられるようにしている |
 | `BundledMangaRepository` | アプリに同梱した `manga.json` をバックグラウンドで読み込み、デコードしてシャッフルする |
 | `SampleMangaRepository` | プレビュー用のサンプル 6 件。表紙はローカル画像 |
-| `SwipeHistoryStore` | `SwipeRecord` の追加・更新・削除。ViewModel から SwiftData の細かい処理を隠す。`history()` でおすすめ計算用、`recentHistory(limit:)` で取り消し用の履歴を返す。書き込みは保存に失敗すると変更を取り消して（rollback）エラーを投げる |
+| `SwipeHistoryStoring` | 履歴の読み書きのプロトコル。ViewModel はこれだけに依存し、テストでは失敗する偽物に差し替える |
+| `SwipeHistoryStore` | `SwipeHistoryStoring` の SwiftData 実装。`SwipeRecord` の追加・更新・削除。ViewModel から SwiftData の細かい処理を隠す。`history()` でおすすめ計算用、`recentHistory(limit:)` で取り消し用の履歴を返す。書き込みは保存に失敗すると変更を取り消して（rollback）エラーを投げる |
 | `ImageLoader` | 表紙画像の取得とキャッシュ。メモリ（NSCache、デコード済み）とディスク（専用の URLCache、300MB、`Caches/CoverImages`）の2段。同じURLへの同時リクエストは1本にまとめる。`prefetch(_:)` で先読み |
 | `AnalyticsService` | 利用イベント（`AnalyticsEvent`）の定義と記録先。`AnalyticsLogging` プロトコルで差し替え可能。アプリは `FirebaseAnalyticsLogger`、テストとプレビューは `NoopAnalyticsLogger` / 偽物を使う。作品名や ID は送らない |
 | `RecommendationEngine` | 判定履歴からジャンルの好み度を計算し、デッキを並べ替える（詳しくは「4. おすすめ順の仕組み」） |

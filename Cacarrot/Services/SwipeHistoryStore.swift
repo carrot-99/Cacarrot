@@ -3,12 +3,32 @@
 import Foundation
 import SwiftData
 
-/// スワイプ履歴の読み書きを担当（ViewModel から SwiftData の詳細を隠す）
+/// スワイプ履歴の読み書き（ViewModel はこのプロトコルだけに依存する。テストでは失敗する偽物に差し替える）
+@MainActor
+protocol SwipeHistoryStoring: AnyObject {
+    /// すでに判定済みの作品ID
+    func swipedIDs() -> Set<Int>
+    /// おすすめ順の計算に使う判定履歴
+    func history() -> [(genres: [String], action: SwipeAction)]
+    /// 新しい順の判定履歴（取り消し用）
+    func recentHistory(limit: Int) -> [(mangaID: Int, action: SwipeAction)]
+    func record(_ manga: Manga, action: SwipeAction) throws
+    func updateAction(mangaID: Int, to action: SwipeAction) throws
+    func remove(mangaID: Int) throws
+    /// 指定した判定の履歴を削除（nil なら全件）
+    func removeAll(of action: SwipeAction?) throws
+}
+
+extension SwipeHistoryStoring {
+    func removeAll() throws { try removeAll(of: nil) }
+}
+
+/// SwiftData を使った実装（ViewModel から SwiftData の詳細を隠す）
 ///
 /// 書き込み系のメソッドは保存に失敗すると変更を取り消して（rollback）エラーを投げる。
 /// 呼び出し側（ViewModel）は画面の状態を元に戻し、ユーザーに知らせる。
 @MainActor
-final class SwipeHistoryStore {
+final class SwipeHistoryStore: SwipeHistoryStoring {
     private let context: ModelContext
 
     init(context: ModelContext) {
@@ -61,7 +81,7 @@ final class SwipeHistoryStore {
     }
 
     /// 指定した判定の履歴を削除（nil なら全件）
-    func removeAll(of action: SwipeAction? = nil) throws {
+    func removeAll(of action: SwipeAction?) throws {
         for record in allRecords() where action == nil || record.action == action {
             context.delete(record)
         }
