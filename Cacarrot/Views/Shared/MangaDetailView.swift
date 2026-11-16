@@ -6,6 +6,8 @@ import SwiftUI
 struct MangaDetailView: View {
     let manga: Manga
     var action: SwipeAction?
+    /// デッキから開いた場合の判定（指定するとシート下部に判定ボタンを表示する）
+    var onDecide: ((SwipeAction) -> Void)?
 
     @Environment(\.dismiss) private var dismiss
 
@@ -45,17 +47,8 @@ struct MangaDetailView: View {
                 .padding()
             }
             .safeAreaInset(edge: .bottom) {
-                if let itemURL = manga.itemURL {
-                    Link(destination: itemURL) {
-                        Label("楽天ブックスで見る", systemImage: "cart.fill")
-                            .font(.headline)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 6)
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .padding(.horizontal)
-                    .padding(.bottom, 8)
-                    .background(.bar)
+                if manga.itemURL != nil || onDecide != nil {
+                    bottomBar
                 }
             }
             .navigationBarTitleDisplayMode(.inline)
@@ -66,6 +59,40 @@ struct MangaDetailView: View {
             }
         }
         .presentationDragIndicator(.visible)
+    }
+
+    /// 購入リンクと、デッキから開いた場合の判定ボタン
+    private var bottomBar: some View {
+        VStack(spacing: 12) {
+            if let itemURL = manga.itemURL {
+                Link(destination: itemURL) {
+                    Label("楽天ブックスで見る", systemImage: "cart.fill")
+                        .font(.headline)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 6)
+                }
+                .buttonStyle(.borderedProminent)
+            }
+
+            if let onDecide {
+                HStack(spacing: 28) {
+                    ForEach([SwipeAction.nope, .superLike, .like], id: \.self) { action in
+                        CircleActionButton(systemImage: action.systemImage,
+                                           color: action.color,
+                                           size: action == .superLike ? 48 : 60,
+                                           label: action.displayName) {
+                            dismiss()
+                            onDecide(action)
+                        }
+                    }
+                }
+                .frame(maxWidth: .infinity)
+            }
+        }
+        .padding(.horizontal)
+        .padding(.top, 10)
+        .padding(.bottom, 8)
+        .background(.bar)
     }
 }
 

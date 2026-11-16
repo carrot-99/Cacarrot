@@ -8,6 +8,11 @@ struct ProfileView: View {
     @Environment(SwipeDeckViewModel.self) private var deck
     @Query private var records: [SwipeRecord]
     @State private var isConfirmingReset = false
+    @State private var isShowingGuide = false
+
+    private func closeGuide() {
+        withAnimation(.easeOut(duration: 0.25)) { isShowingGuide = false }
+    }
 
     private func count(_ action: SwipeAction) -> Int {
         records.filter { $0.action == action }.count
@@ -38,7 +43,7 @@ struct ProfileView: View {
                     .listRowInsets(EdgeInsets(top: 12, leading: 12, bottom: 12, trailing: 12))
 
                     if deck.totalCount > 0 {
-                        let checked = deck.totalCount - deck.remainingCount
+                        let checked = deck.checkedCount
                         VStack(alignment: .leading, spacing: 6) {
                             Text("チェック済み \(checked) / \(deck.totalCount) 作品")
                                 .font(.subheadline)
@@ -77,6 +82,11 @@ struct ProfileView: View {
                     Toggle(isOn: $deck.isRecommendationEnabled) {
                         Label("おすすめ順で表示", systemImage: "sparkles")
                     }
+                    Button {
+                        withAnimation(.easeOut(duration: 0.25)) { isShowingGuide = true }
+                    } label: {
+                        Label("使い方を見る", systemImage: "questionmark.circle")
+                    }
                 } footer: {
                     Text("いいねした作品のジャンルをもとに、好みに近い作品を先に表示します。オフにするとランダムな順番になります。")
                 }
@@ -110,6 +120,17 @@ struct ProfileView: View {
                 Button("リセット", role: .destructive) { deck.resetAll() }
             } message: {
                 Text("この操作は取り消せません。")
+            }
+        }
+        .overlay {
+            if isShowingGuide {
+                ZStack {
+                    Color.black.opacity(0.45)
+                        .ignoresSafeArea()
+                        .onTapGesture { closeGuide() }
+                    SwipeGuideView(buttonTitle: "閉じる", onClose: closeGuide)
+                }
+                .transition(.opacity)
             }
         }
     }

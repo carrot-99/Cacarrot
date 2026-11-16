@@ -7,7 +7,7 @@ struct ContentView: View {
     enum Tab: Hashable { case discover, library, profile }
 
     @State private var selection: Tab = .discover
-    @Query(filter: #Predicate<SwipeRecord> { $0.actionRawValue != "nope" })
+    @Query(filter: SwipeRecord.likedPredicate)
     private var likedRecords: [SwipeRecord]
 
     var body: some View {
