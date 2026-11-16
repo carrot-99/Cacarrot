@@ -23,6 +23,11 @@ struct MangaDetailView: View {
                         Text(manga.author)
                             .font(.headline)
                             .foregroundStyle(.secondary)
+                        if let publisher = manga.publisher {
+                            Text(publisher)
+                                .font(.subheadline)
+                                .foregroundStyle(.tertiary)
+                        }
                     }
 
                     if let action {
@@ -39,6 +44,20 @@ struct MangaDetailView: View {
                 }
                 .padding()
             }
+            .safeAreaInset(edge: .bottom) {
+                if let itemURL = manga.itemURL {
+                    Link(destination: itemURL) {
+                        Label("楽天ブックスで見る", systemImage: "cart.fill")
+                            .font(.headline)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 6)
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .padding(.horizontal)
+                    .padding(.bottom, 8)
+                    .background(.bar)
+                }
+            }
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
@@ -52,4 +71,11 @@ struct MangaDetailView: View {
 
 #Preview {
     MangaDetailView(manga: SampleMangaRepository.items[1], action: .like)
+}
+
+#Preview("楽天リンクあり") {
+    MangaDetailView(manga: Manga(id: 99, title: "サンプル", author: "作者",
+                                 genres: ["少年", "アクション"], summary: "あらすじ",
+                                 imageName: "ONE PIECE", publisher: "集英社",
+                                 itemURL: URL(string: "https://books.rakuten.co.jp/")))
 }

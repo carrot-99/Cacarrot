@@ -13,6 +13,10 @@ struct Manga: Identifiable, Hashable, Codable, Sendable {
     let imageName: String?
     /// 表紙画像のURL（リモート画像がある場合）
     let imageURL: URL?
+    /// 出版社
+    let publisher: String?
+    /// 商品ページのURL（楽天ブックスなど）
+    let itemURL: URL?
 
     init(id: Int,
          title: String,
@@ -20,7 +24,9 @@ struct Manga: Identifiable, Hashable, Codable, Sendable {
          genres: [String],
          summary: String,
          imageName: String? = nil,
-         imageURL: URL? = nil) {
+         imageURL: URL? = nil,
+         publisher: String? = nil,
+         itemURL: URL? = nil) {
         self.id = id
         self.title = title
         self.author = author
@@ -28,5 +34,7 @@ struct Manga: Identifiable, Hashable, Codable, Sendable {
         self.summary = summary
         self.imageName = imageName
         self.imageURL = imageURL
+        self.publisher = publisher
+        self.itemURL = itemURL
     }
 }

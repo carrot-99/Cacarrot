@@ -4,17 +4,34 @@
 
 ```mermaid
 flowchart LR
+    RAPI[楽天ブックス書籍検索API] -- fetch_rakuten.py --> RAW[(rakuten_raw.json<br/>最大3,000商品)]
     API[AniList GraphQL API] -- query.py --> CSV[(manga_info.csv<br/>約10万行)]
-    CSV -- build_app_data.py --> JSON[(Cacarrot/Resources/manga.json<br/>500件)]
+    RAW -- build_app_data.py --> JSON[(Cacarrot/Resources/manga.json<br/>500件)]
+    CSV -- ジャンルを補う --> JSON
     JSON -- BundledMangaRepository --> APP[アプリのデッキ]
     APP -- SwipeHistoryStore --> DB[(SwiftData<br/>SwipeRecord)]
-    CDN[AniList の画像 CDN] -- AsyncImage --> APP
+    CDN[表紙画像の CDN] -- AsyncImage --> APP
 ```
 
 - 作品データはアプリに同梱した JSON です。起動中にネットワークから作品情報を取ることはありません。
 - 表紙画像だけは、`imageURL` から毎回ネットワークで読み込みます。
+- データ源は2つあります。`build_app_data.py --source` で選びます。
 
-## 2. 取得：MangaInfoFetcher/query.py
+| データ源 | 状態 | 内容 |
+| --- | --- | --- |
+| `rakuten`（これから主に使う） | スクリプトは完成。楽天のサーバ停止中のため、実データでは未検証 | 日本語のあらすじ・作者・表紙・商品リンク。ジャンルは AniList から補う |
+| `anilist`（現在の manga.json） | 使用中 | 英語のあらすじ、ローマ字の作者名 |
+
+## 2. 取得（楽天）：MangaInfoFetcher/fetch_rakuten.py
+
+- `MangaInfoFetcher/.env` から `RAKUTEN_APP_ID` / `RAKUTEN_ACCESS_KEY` / `RAKUTEN_AFFILIATE_ID`（任意）/ `RAKUTEN_REFERER` を読みます。`.env` は Git の管理外です。
+- 呼び出し先は `https://openapi.rakuten.co.jp/services/api/BooksBook/Search/20170404`（2026年の新仕様）です。
+- コミック（`booksGenreId=001001`）を売れ筋順（`sort=sales`）に、1ページ30件・最大100ページ取得し、`rakuten_raw.json` に保存します（Git の管理外）。
+- 楽天の制限（1秒1回）に合わせて、1.2秒ずつ待ちます。
+- 各商品に、売れ筋順の順位 `_rank` を付けて保存します。
+- `--check` を付けると1件だけ取得し、接続を確認します。エラーのときは、原因の候補（IP未登録、Referer不一致など）を表示します。
+
+## 2.1 取得（AniList）：MangaInfoFetcher/query.py
 
 **取得の仕方**
 - AniList の GraphQL API（`https://graphql.anilist.co`）から、`type: MANGA` の作品を 1 ページ 50 件ずつ取得し、`manga_info.csv` に追記します。
@@ -37,8 +54,36 @@ flowchart LR
 ## 3. 変換：MangaInfoFetcher/build_app_data.py
 
 ```bash
-cd MangaInfoFetcher && python3 build_app_data.py --limit 500 --min-score 75
+cd MangaInfoFetcher && python3 build_app_data.py --limit 500
 ```
+
+`--source` を省略すると、`rakuten_raw.json` があれば `rakuten`、なければ `anilist` で変換します。
+
+### 3.1 rakuten モード
+
+楽天は巻ごとの商品を返すため、作品ごとにまとめます。
+
+1. 次の商品を除きます。
+   - タイトルに「特装版」「限定版」「画集」「ファンブック」「セット」などを含むもの
+   - 表紙がないもの（`noimage`）
+2. タイトルから作品名と巻数を取り出します（`series_title`）。
+   - 例：「呪術廻戦 1（ジャンプコミックス）」→ 作品名「呪術廻戦」、1巻
+3. 「作品名＋作者」が同じ商品を1作品にまとめます。代表には、あらすじがある商品のうち一番若い巻を使います。
+4. 並び順は、その作品の中で一番売れている巻の順位です。
+5. 値を整えます。
+
+| 項目 | 内容 |
+| --- | --- |
+| id | ISBN（13桁）。ない場合は順位から仮のIDを振る |
+| 作者 | 1人目の名前。日本語名は空白を詰める（「尾田 栄一郎」→「尾田栄一郎」） |
+| あらすじ | 商品説明から HTML タグ、【特典】【限定】などの括弧書き、※★■で始まる行を取り除く |
+| ジャンル | 楽天の区分（少年・少女・青年・女性）を先頭に置き、AniList の原題と一致した作品のジャンル（アクションなど）を続ける。AniList で Hentai/Ecchi の作品は除く |
+| 表紙 | `?_ex=200x200` を `_ex=600x600` に置き換える（大きいサイズが取れるかは要確認） |
+| publisher / itemURL | 出版社。アフィリエイトURL（なければ商品URL） |
+
+楽天の区分コード（`001001001`＝少年 など）と表紙の拡大は推測で書いています。実データで確認が必要です。
+
+### 3.2 anilist モード（旧方式）
 
 **作品を選ぶ条件**（処理の順）
 
@@ -77,6 +122,7 @@ cd MangaInfoFetcher && python3 build_app_data.py --limit 500 --min-score 75
 ]
 ```
 
+- 楽天のデータでは、`"publisher": "集英社"` と `"itemURL": "https://..."` も入ります。どちらも省略できます。
 - `imageName` は、ローカル画像を使う場合だけ指定します（プレビュー用のサンプルが使っています）。
 - 表紙は、ローカル画像、リモート画像、プレースホルダーの順に表示を試します（`MangaCoverView`）。
 
@@ -87,6 +133,7 @@ cd MangaInfoFetcher && python3 build_app_data.py --limit 500 --min-score 75
 | `mangaID` | Int（ユニーク） | 作品 ID |
 | `title` / `author` / `genres` / `summary` | String / [String] | 判定したときの作品情報のコピー |
 | `imageName` / `imageURLString` | String? | 表紙 |
+| `publisher` / `itemURLString` | String? | 出版社、商品ページ（2026-11-16 に追加。オプショナルなので既存データは自動で移行される） |
 | `actionRawValue` | String | `like` / `superLike` / `nope` |
 | `createdAt` | Date | 判定した日時。同じ作品を判定し直すと更新される |
 

@@ -13,6 +13,8 @@ final class SwipeRecord {
     var summary: String
     var imageName: String?
     var imageURLString: String?
+    var publisher: String?
+    var itemURLString: String?
     var actionRawValue: String
     var createdAt: Date
 
@@ -24,6 +26,8 @@ final class SwipeRecord {
         self.summary = manga.summary
         self.imageName = manga.imageName
         self.imageURLString = manga.imageURL?.absoluteString
+        self.publisher = manga.publisher
+        self.itemURLString = manga.itemURL?.absoluteString
         self.actionRawValue = action.rawValue
         self.createdAt = createdAt
     }
@@ -40,6 +44,8 @@ final class SwipeRecord {
               genres: genres,
               summary: summary,
               imageName: imageName,
-              imageURL: imageURLString.flatMap(URL.init(string:)))
+              imageURL: imageURLString.flatMap(URL.init(string:)),
+              publisher: publisher,
+              itemURL: itemURLString.flatMap(URL.init(string:)))
     }
 }
