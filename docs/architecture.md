@@ -199,6 +199,7 @@ Cacarrot/
 │   ├── Utilities/
 │   ├── Resources/manga.json  同梱データ（自動生成）
 │   └── Assets.xcassets
+├── CacarrotWidget/           「今日の1冊」ウィジェット（Manga.swift・DailyPick.swift・manga.json をアプリと共有）
 ├── CacarrotTests/            アプリの単体テスト（XCTest）
 ├── CacarrotUITests/          画面のテスト（XCUITest）
 ├── .github/workflows/        GitHub Actions（Python のテスト）
