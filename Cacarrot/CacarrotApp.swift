@@ -61,6 +61,12 @@ struct CacarrotApp: App {
         self.container = container
         self.defaults = .standard
         Haptics.isEnabled = UserDefaults.standard.object(forKey: Haptics.settingKey) as? Bool ?? true
+        // リマインダーがオンなら登録し直す（時刻の変更やOSの更新で消えていても戻るように）
+        if UserDefaults.standard.bool(forKey: ReminderScheduler.enabledKey) {
+            let minutes = UserDefaults.standard.object(forKey: ReminderScheduler.minutesKey) as? Int
+                ?? ReminderScheduler.defaultMinutes
+            Task { try? await ReminderScheduler().schedule(minutes: minutes) }
+        }
         _deck = State(initialValue: SwipeDeckViewModel(
             repository: BundledMangaRepository(),
             store: SwipeHistoryStore(context: container.mainContext),

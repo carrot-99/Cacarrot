@@ -73,6 +73,8 @@ struct ProfileView: View {
                     Text("いいねした作品のジャンルをもとに、好みに近い作品を先に表示します。オフにするとランダムな順番になります。")
                 }
 
+                ReminderSection()
+
                 Section {
                     NavigationLink {
                         SkippedListView()
@@ -116,6 +118,59 @@ struct ProfileView: View {
                     SwipeGuideView(buttonTitle: "閉じる", onClose: closeGuide)
                 }
                 .transition(.opacity)
+            }
+        }
+    }
+}
+
+/// 毎日のリマインダー（ローカル通知）の設定
+private struct ReminderSection: View {
+    @AppStorage(ReminderScheduler.enabledKey) private var isEnabled = false
+    @AppStorage(ReminderScheduler.minutesKey) private var minutes = ReminderScheduler.defaultMinutes
+    @State private var isShowingDenied = false
+    @Environment(\.openURL) private var openURL
+
+    private let scheduler = ReminderScheduler()
+
+    private var time: Binding<Date> {
+        Binding(get: { ReminderScheduler.date(fromMinutes: minutes) },
+                set: { minutes = ReminderScheduler.minutes(from: $0) })
+    }
+
+    var body: some View {
+        Section {
+            Toggle(isOn: $isEnabled) {
+                Label("毎日のリマインダー", systemImage: "bell")
+            }
+            .onChange(of: isEnabled) { _, enabled in
+                enabled ? apply() : scheduler.cancel()
+            }
+            if isEnabled {
+                DatePicker("通知する時刻", selection: time, displayedComponents: .hourAndMinute)
+                    .onChange(of: minutes) { _, _ in apply() }
+            }
+        } footer: {
+            Text("毎日決まった時刻に、新しい作品をさがすお知らせを出します。")
+        }
+        .alert("通知が許可されていません", isPresented: $isShowingDenied) {
+            Button("設定を開く") {
+                if let url = URL(string: UIApplication.openSettingsURLString) { openURL(url) }
+            }
+            Button("キャンセル", role: .cancel) {}
+        } message: {
+            Text("設定アプリの「通知」で Cacarrot を許可すると、リマインダーを受け取れます。")
+        }
+    }
+
+    private func apply() {
+        let minutes = minutes
+        Task {
+            do {
+                try await scheduler.schedule(minutes: minutes)
+            } catch {
+                // 許可されなかった場合は、スイッチをオフに戻して設定の開き方を案内する
+                isEnabled = false
+                isShowingDenied = true
             }
         }
     }

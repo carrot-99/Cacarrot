@@ -189,7 +189,7 @@ Cacarrot/
 │   ├── CacarrotApp.swift     エントリポイント・依存の組み立て
 │   ├── ContentView.swift     タブ
 │   ├── Models/
-│   ├── Services/
+│   ├── Services/             データ取得・履歴の保存・おすすめ・画像・分析・リマインダー通知
 │   ├── ViewModels/
 │   ├── Views/
 │   │   ├── Main/             さがす（カード・ボタン・ヘッダー・ジャンル絞り込み）
@@ -200,6 +200,8 @@ Cacarrot/
 │   ├── Resources/manga.json  同梱データ（自動生成）
 │   └── Assets.xcassets
 ├── CacarrotTests/            アプリの単体テスト（XCTest）
+├── CacarrotUITests/          画面のテスト（XCUITest）
+├── .github/workflows/        GitHub Actions（Python のテスト）
 ├── MangaInfoFetcher/         データ取得と変換の Python スクリプト
 ├── Design/                   ロゴやアイコンの元画像
 └── docs/                     このドキュメント
