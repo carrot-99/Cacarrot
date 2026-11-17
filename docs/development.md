@@ -53,10 +53,11 @@ xcodebuild test -project Cacarrot.xcodeproj -scheme Cacarrot -destination 'platf
 | `testGenreFilter` | 「ギャグ」で絞り込むと1作品になる |
 | `testJudgeFromDetailSheet` | カードをタップして詳細を開き、スーパーいいね |
 | `testRestoreOneSkippedTitleFromMyPage` | スキップ → マイページの一覧から1作品だけデッキに戻す |
+| `testOpenSimilarTitleFromDetail` | 詳細シートの「似ている作品」から別の作品の詳細へ進み、戻る |
 
 - アプリを起動引数 `-uiTesting` で起動します。このときは、メモリ上のデータ・専用の UserDefaults（`CacarrotUITesting`）・サンプル6作品・おすすめ順オフで動き、Firebase も初期化しません。端末に保存された履歴や設定には触れません。
 - 画面の要素は `accessibilityIdentifier`（`deck.remaining`、`action.like`、`detail.superLike` など）で探します。文言を変えてもテストが壊れないように、新しい操作にも識別子を付けてください。
-- 5件で約1分20秒かかります。単体テストだけを実行するときは `-only-testing:CacarrotTests` を付けます。
+- 6件で約1分40秒かかります。単体テストだけを実行するときは `-only-testing:CacarrotTests` を付けます。
 - `commit(_:action:)` は、アニメーションを待たずに判定を確定するため、テストから直接呼んでいます。
 - データ変換スクリプトの単体テストは、次のコマンドで実行できます。
 

@@ -66,4 +66,36 @@ struct RecommendationEngine: Sendable {
         var generator = SystemRandomNumberGenerator()
         return rank(items, affinity: affinity, using: &generator)
     }
+
+    // MARK: - 似ている作品
+
+    /// 2作品の近さ（0〜1）。ジャンルの重なり（Jaccard 係数）に、作者が同じなら 0.5 を足して 1 で頭打ち
+    static func similarity(_ a: Manga, _ b: Manga) -> Double {
+        let lhs = Set(a.genres), rhs = Set(b.genres)
+        let union = lhs.union(rhs).count
+        let genreScore = union == 0 ? 0 : Double(lhs.intersection(rhs).count) / Double(union)
+        let sameAuthor = !a.author.isEmpty && a.author == b.author
+        return min(genreScore + (sameAuthor ? 0.5 : 0), 1)
+    }
+
+    /// 似ている作品を近い順に返す（同じ近さなら、まだ判定していない作品を先に）
+    func similar(to manga: Manga,
+                 in candidates: [Manga],
+                 checkedIDs: Set<Int> = [],
+                 limit: Int = 8) -> [Manga] {
+        candidates
+            .lazy
+            .filter { $0.id != manga.id }
+            .map { (manga: $0, score: Self.similarity(manga, $0)) }
+            .filter { $0.score > 0 }
+            .sorted { lhs, rhs in
+                if lhs.score != rhs.score { return lhs.score > rhs.score }
+                let lhsChecked = checkedIDs.contains(lhs.manga.id)
+                let rhsChecked = checkedIDs.contains(rhs.manga.id)
+                if lhsChecked != rhsChecked { return !lhsChecked }
+                return lhs.manga.id < rhs.manga.id
+            }
+            .prefix(limit)
+            .map(\.manga)
+    }
 }

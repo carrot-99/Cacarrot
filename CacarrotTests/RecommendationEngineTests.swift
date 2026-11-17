@@ -62,4 +62,34 @@ final class RecommendationEngineTests: XCTestCase {
         XCTAssertEqual(ranked.count, items.count)
         XCTAssertEqual(Set(ranked.map(\.id)), Set(items.map(\.id)))
     }
+
+    // MARK: - 似ている作品
+
+    private func manga(_ id: Int, _ genres: [String], author: String = "") -> Manga {
+        Manga(id: id, title: "T\(id)", author: author, genres: genres, summary: "")
+    }
+
+    func testSimilarityUsesGenreOverlapAndAuthor() {
+        let base = manga(1, ["バトル", "冒険"], author: "作者A")
+        XCTAssertEqual(RecommendationEngine.similarity(base, manga(2, ["バトル", "冒険"])), 1)
+        XCTAssertEqual(RecommendationEngine.similarity(base, manga(3, ["バトル", "恋愛"])), 1.0 / 3, accuracy: 1e-9)
+        XCTAssertEqual(RecommendationEngine.similarity(base, manga(4, ["恋愛"])), 0)
+        XCTAssertEqual(RecommendationEngine.similarity(base, manga(5, ["恋愛"], author: "作者A")), 0.5,
+                       "ジャンルが違っても作者が同じなら近い")
+        XCTAssertEqual(RecommendationEngine.similarity(manga(6, []), manga(7, [])), 0, "作者が空なら一致とみなさない")
+    }
+
+    func testSimilarSortsByScoreThenUncheckedAndExcludesSelf() {
+        let base = manga(1, ["バトル", "冒険"])
+        let candidates = [
+            base,
+            manga(2, ["バトル"]),           // 0.5
+            manga(3, ["バトル", "冒険"]),   // 1.0
+            manga(4, ["冒険"]),             // 0.5
+            manga(5, ["恋愛"]),             // 0 → 出さない
+        ]
+        let result = RecommendationEngine().similar(to: base, in: candidates, checkedIDs: [2])
+        XCTAssertEqual(result.map(\.id), [3, 4, 2], "同じ近さなら判定していない作品を先に")
+        XCTAssertEqual(RecommendationEngine().similar(to: base, in: candidates, limit: 1).map(\.id), [3])
+    }
 }
