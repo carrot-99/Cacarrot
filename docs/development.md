@@ -96,7 +96,7 @@ cd MangaInfoFetcher && python3 fetch_rakuten.py
 
 1. 必要なら AniList から取得し直します。前回の続きのページから取得します（`MangaInfoFetcher/fetch_state.json` に保存。Git 管理外）。
    - 1 ページごとに 40 秒待つため、全件の取得には長い時間がかかります。
-   - 標準ライブラリだけで動くので、venv は不要です（ルートの `venv/` は使っていません）。
+   - 標準ライブラリだけで動くので、venv は不要です。
    - `--start-page 1` で最初から、`--max-pages 10` で取得するページ数を制限できます。
 
 ```bash

@@ -83,3 +83,37 @@ extension SwipeRecord {
         return #Predicate { $0.actionRawValue == nope }
     }
 }
+
+/// マイページの集計（判定ごとの件数と、好きなジャンル）
+///
+/// 履歴を1回だけ走査して求める。画面の再描画のたびに何度も全件を数えないようにするため
+struct SwipeStats: Equatable {
+    private(set) var counts: [SwipeAction: Int] = [:]
+    /// いいね +1、スーパーいいね +2 で数えたジャンルの上位（多い順。同数は名前順）
+    private(set) var topGenres: [(genre: String, count: Int)] = []
+
+    static let topGenreLimit = 5
+
+    init<S: Sequence>(records: S) where S.Element == SwipeRecord {
+        var genreCounts: [String: Int] = [:]
+        for record in records {
+            let action = record.action
+            counts[action, default: 0] += 1
+            guard action != .nope else { continue }
+            let weight = action == .superLike ? 2 : 1
+            for genre in record.genres { genreCounts[genre, default: 0] += weight }
+        }
+        topGenres = genreCounts
+            .sorted { $0.value != $1.value ? $0.value > $1.value : $0.key < $1.key }
+            .prefix(Self.topGenreLimit)
+            .map { (genre: $0.key, count: $0.value) }
+    }
+
+    func count(_ action: SwipeAction) -> Int { counts[action] ?? 0 }
+
+    static func == (lhs: SwipeStats, rhs: SwipeStats) -> Bool {
+        lhs.counts == rhs.counts
+            && lhs.topGenres.map(\.genre) == rhs.topGenres.map(\.genre)
+            && lhs.topGenres.map(\.count) == rhs.topGenres.map(\.count)
+    }
+}
