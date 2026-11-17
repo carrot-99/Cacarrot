@@ -19,6 +19,7 @@
 		4E86DB7AD06275B9E7AA1E02 /* SwipeCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1ABC1EECE6980AB220D28EC6 /* SwipeCardView.swift */; };
 		4EDA17BB93577830482A13FD /* Manga.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F06EEE361D080558B5FC918 /* Manga.swift */; };
 		56D00ED016284E758E41CC5C /* SaveFailureTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC3BEBC12D534A6DA8DB3265 /* SaveFailureTests.swift */; };
+		7404853375C3495084B434AA /* ReminderSchedulerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED43A08EE07F45149140433F /* ReminderSchedulerTests.swift */; };
 		5EDB8E8FE728BAB5363345C9 /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4428240E96D70886493A870 /* MainView.swift */; };
 		62CF149A944B9BBD2229079D /* SwipeAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E9EA4C0E009BD51C9D106AF /* SwipeAction.swift */; };
 		7073E613F45E6656DD5A377A /* SwipeHistoryStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54ACCACE009FDD4BD01181A5 /* SwipeHistoryStoreTests.swift */; };
@@ -32,6 +33,7 @@
 		B49EBBA5184B073919D64DBF /* SwipeDeckViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD1655FFC5205D3CE6539094 /* SwipeDeckViewModelTests.swift */; };
 		C0FFEE000000000000000003 /* manga.json in Resources */ = {isa = PBXBuildFile; fileRef = C0FFEE000000000000000002 /* manga.json */; };
 		C782A640E1BF479395520FB1 /* AnalyticsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9CC5D8F8DD4A4186902BAD43 /* AnalyticsService.swift */; };
+		E38477BC398C4F7B8B6CCAE3 /* ReminderScheduler.swift in Sources */ = {isa = PBXBuildFile; fileRef = A83BEB1FFE8F45A48930348E /* ReminderScheduler.swift */; };
 		C86C3161C7841B6EBC1B4A5D /* CacarrotUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 109D5C9C9054FCA80173BD80 /* CacarrotUITests.swift */; };
 		CD97CE6D5F59BDD4E668A930 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 86CD1C879CDC5909FE308521 /* Foundation.framework */; };
 		CE59D3202BA95F4300A748BA /* CacarrotApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE59D31F2BA95F4300A748BA /* CacarrotApp.swift */; };
@@ -92,6 +94,7 @@
 		8D29E23C3EA9BC9D823E0880 /* LibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryView.swift; sourceTree = "<group>"; };
 		8E4E490D4987472BA46752C2 /* SwipeRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwipeRecord.swift; sourceTree = "<group>"; };
 		9CC5D8F8DD4A4186902BAD43 /* AnalyticsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsService.swift; sourceTree = "<group>"; };
+		A83BEB1FFE8F45A48930348E /* ReminderScheduler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReminderScheduler.swift; sourceTree = "<group>"; };
 		A1A21B40C6174522A9289EFA /* SwipeGuideView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwipeGuideView.swift; sourceTree = "<group>"; };
 		A1D371A73B0871F6F0E5DC47 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		A26E72A542164B24ADCD0988 /* CacarrotUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CacarrotUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -107,6 +110,7 @@
 		CE59D34E2BAC111D00A748BA /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		D4B07531CD7C05B15964801F /* MangaDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MangaDetailView.swift; sourceTree = "<group>"; };
 		DC3BEBC12D534A6DA8DB3265 /* SaveFailureTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SaveFailureTests.swift; sourceTree = "<group>"; };
+		ED43A08EE07F45149140433F /* ReminderSchedulerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReminderSchedulerTests.swift; sourceTree = "<group>"; };
 		E7EB918E8F5548C08862A382 /* RecommendationEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecommendationEngine.swift; sourceTree = "<group>"; };
 		EF5CA8BFC1F674E91874C4C5 /* ActionBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionBarView.swift; sourceTree = "<group>"; };
 		FB75FF464FD033C5834C1689 /* Haptics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Haptics.swift; sourceTree = "<group>"; };
@@ -168,6 +172,7 @@
 				E7EB918E8F5548C08862A382 /* RecommendationEngine.swift */,
 				4A32DC62DC5F47039667AC4F /* ImageLoader.swift */,
 				9CC5D8F8DD4A4186902BAD43 /* AnalyticsService.swift */,
+				A83BEB1FFE8F45A48930348E /* ReminderScheduler.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -196,6 +201,7 @@
 				BD1655FFC5205D3CE6539094 /* SwipeDeckViewModelTests.swift */,
 				54ACCACE009FDD4BD01181A5 /* SwipeHistoryStoreTests.swift */,
 				DC3BEBC12D534A6DA8DB3265 /* SaveFailureTests.swift */,
+				ED43A08EE07F45149140433F /* ReminderSchedulerTests.swift */,
 			);
 			name = CacarrotTests;
 			path = CacarrotTests;
@@ -469,6 +475,7 @@
 				B49EBBA5184B073919D64DBF /* SwipeDeckViewModelTests.swift in Sources */,
 				7073E613F45E6656DD5A377A /* SwipeHistoryStoreTests.swift in Sources */,
 				56D00ED016284E758E41CC5C /* SaveFailureTests.swift in Sources */,
+				7404853375C3495084B434AA /* ReminderSchedulerTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -499,6 +506,7 @@
 				30F2F778286A4C1692B2F4FC /* RecommendationEngine.swift in Sources */,
 				85C0A9B4F2364E80992F676F /* ImageLoader.swift in Sources */,
 				C782A640E1BF479395520FB1 /* AnalyticsService.swift in Sources */,
+				E38477BC398C4F7B8B6CCAE3 /* ReminderScheduler.swift in Sources */,
 				98C14EC9C1CD40028947898F /* MangaCoverView.swift in Sources */,
 				04B91D078BEC3E1ADB097B8B /* GenreTagsView.swift in Sources */,
 				736C028902742673DA771A50 /* MangaDetailView.swift in Sources */,
