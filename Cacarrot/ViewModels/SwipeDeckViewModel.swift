@@ -212,6 +212,17 @@ final class SwipeDeckViewModel {
         recommender.similar(to: manga, in: allManga, checkedIDs: swipedIDs, limit: limit)
     }
 
+    /// 作品IDから作品を探す（ウィジェットから開いたとき）
+    func manga(id: Int) -> Manga? {
+        allManga.first { $0.id == id }
+    }
+
+    /// デッキの一番上以外の作品を判定する（ウィジェットから開いた詳細シートなど）。判定済みなら何もしない
+    func decide(_ manga: Manga, action: SwipeAction, source: SwipeSource) {
+        guard !swipedIDs.contains(manga.id), !isAnimating else { return }
+        commit(manga, action: action, source: source)
+    }
+
     /// 判定済みかどうか（似ている作品の一覧で印を付ける）
     func isChecked(_ manga: Manga) -> Bool {
         swipedIDs.contains(manga.id)

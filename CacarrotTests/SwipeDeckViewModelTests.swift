@@ -241,4 +241,20 @@ final class SwipeDeckViewModelTests: XCTestCase {
         XCTAssertEqual(deck.cards.map(\.id), [1002], "判定済みの ONE PIECE は新しい ID でもデッキに出ない")
         XCTAssertTrue(deck.canUndo, "付け替えた履歴も取り消せる")
     }
+
+    func testDecideJudgesAnyCardOnce() async {
+        let deck = await makeDeck()
+        let last = deck.cards.last!
+        XCTAssertEqual(deck.manga(id: last.id), last)
+        XCTAssertNil(deck.manga(id: -1))
+
+        deck.decide(last, action: .like, source: .widget)
+        XCTAssertFalse(deck.cards.contains(last), "一番上でなくてもデッキから外れる")
+        XCTAssertTrue(deck.isChecked(last))
+        XCTAssertEqual(analytics.events.last, .swipe(action: .like, source: .widget))
+
+        deck.decide(last, action: .nope, source: .widget)
+        XCTAssertEqual(analytics.events.filter { if case .swipe = $0 { true } else { false } }.count, 1,
+                       "判定済みの作品は判定し直さない")
+    }
 }

@@ -42,4 +42,11 @@ final class DailyPickTests: XCTestCase {
         XCTAssertNil(DailyPick.pick(from: [], on: date(17), calendar: calendar))
         XCTAssertEqual(DailyPick.nextChange(after: date(17, hour: 15), calendar: calendar), date(18, hour: 0))
     }
+
+    func testDeepLinkRoundTrip() {
+        XCTAssertEqual(DeepLink.mangaID(from: DeepLink.mangaURL(id: 30002)), 30002)
+        XCTAssertNil(DeepLink.mangaID(from: URL(string: "https://example.com/manga/1")!))
+        XCTAssertNil(DeepLink.mangaID(from: URL(string: "cacarrot://other/1")!))
+        XCTAssertNil(DeepLink.mangaID(from: URL(string: "cacarrot://manga/abc")!))
+    }
 }

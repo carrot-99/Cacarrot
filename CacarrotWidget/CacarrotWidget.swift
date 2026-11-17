@@ -109,6 +109,8 @@ struct DailyPickView: View {
             }
         }
         .containerBackground(for: .widget) { Color(.systemBackground) }
+        // タップでアプリのその作品の詳細を開く
+        .widgetURL(entry.manga.map { DeepLink.mangaURL(id: $0.id) })
     }
 
     private func small(_ manga: Manga) -> some View {

@@ -116,4 +116,20 @@ final class CacarrotUITests: XCTestCase {
         app.navigationBars.buttons.element(boundBy: 0).tap()
         XCTAssertTrue(app.staticTexts["尾田栄一郎"].waitForExistence(timeout: 3))
     }
+
+    func testOpenTitleFromWidgetLinkAndJudge() {
+        // ウィジェットのタップと同じURL（DRAGON BALL はデッキの2枚目）
+        app.open(URL(string: "cacarrot://manga/1")!)
+
+        XCTAssertTrue(app.staticTexts["鳥山明"].waitForExistence(timeout: 5), "その作品の詳細が開く")
+        let like = app.buttons["detail.like"]
+        XCTAssertTrue(like.waitForExistence(timeout: 3), "まだ判定していないので判定ボタンがある")
+        like.tap()
+        waitForRemaining(5)
+        XCTAssertTrue(app.staticTexts["鳥山明"].waitForNonExistence(timeout: 3), "判定するとシートが閉じる")
+        XCTAssertTrue(app.otherElements["deck.topCard"].firstMatch.label.hasPrefix("ONE PIECE"),
+                      "一番上のカードはそのまま（2枚目の作品だけがデッキから外れる）")
+        // 注: app.open はアプリを起動し直すことがある（メモリ上のデータが消える）ため、
+        // 判定済みの作品を開き直す確認はここではしない
+    }
 }

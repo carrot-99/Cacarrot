@@ -36,3 +36,18 @@ enum DailyPick {
             ?? date.addingTimeInterval(24 * 60 * 60)
     }
 }
+
+/// アプリを開くURL（ウィジェットのタップなど）。形式は cacarrot://manga/<作品ID>
+enum DeepLink {
+    static let scheme = "cacarrot"
+
+    static func mangaURL(id: Int) -> URL {
+        URL(string: "\(scheme)://manga/\(id)")!
+    }
+
+    /// 作品を開くURLなら作品IDを返す
+    static func mangaID(from url: URL) -> Int? {
+        guard url.scheme == scheme, url.host() == "manga" else { return nil }
+        return Int(url.lastPathComponent)
+    }
+}

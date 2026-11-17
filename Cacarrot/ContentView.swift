@@ -10,6 +10,9 @@ struct ContentView: View {
     @State private var selection: Tab = .discover
     @Query(filter: SwipeRecord.likedPredicate)
     private var likedRecords: [SwipeRecord]
+    /// URL（ウィジェット）で開くよう頼まれた作品。データの読み込みが終わってから表示する
+    @State private var pendingMangaID: Int?
+    @State private var linkedManga: Manga?
 
     var body: some View {
         @Bindable var deck = deck
@@ -21,6 +24,28 @@ struct ContentView: View {
             } message: {
                 Text(deck.errorMessage ?? "")
             }
+            .onOpenURL { url in
+                guard let id = DeepLink.mangaID(from: url) else { return }
+                pendingMangaID = id
+                openPendingManga()
+            }
+            .onChange(of: deck.loadState) { _, _ in openPendingManga() }
+            .sheet(item: $linkedManga) { manga in
+                // まだ判定していなければ、その場で判定できるようにする
+                MangaDetailView(manga: manga,
+                                onDecide: deck.isChecked(manga) ? nil : { action in
+                                    deck.decide(manga, action: action, source: .widget)
+                                })
+            }
+    }
+
+    private func openPendingManga() {
+        guard let id = pendingMangaID, deck.loadState == .loaded else { return }
+        pendingMangaID = nil
+        guard let manga = deck.manga(id: id) else { return }
+        selection = .discover
+        linkedManga = manga
+        deck.track(.openFromWidget)
     }
 
     private var tabs: some View {
