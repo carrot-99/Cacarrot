@@ -205,6 +205,18 @@ final class SwipeDeckViewModel {
         imageLoader.prefetch(cards.prefix(Self.prefetchCount).compactMap(\.imageURL))
     }
 
+    // MARK: - 似ている作品
+
+    /// 詳細シートに出す、ジャンルや作者が近い作品
+    func similarTitles(to manga: Manga, limit: Int = 8) -> [Manga] {
+        recommender.similar(to: manga, in: allManga, checkedIDs: swipedIDs, limit: limit)
+    }
+
+    /// 判定済みかどうか（似ている作品の一覧で印を付ける）
+    func isChecked(_ manga: Manga) -> Bool {
+        swipedIDs.contains(manga.id)
+    }
+
     // MARK: - ドラッグ
 
     func dragChanged(_ translation: CGSize) {

@@ -98,4 +98,22 @@ final class CacarrotUITests: XCTestCase {
         app.tabBars.buttons["さがす"].firstMatch.tap()
         waitForRemaining(6)
     }
+
+    func testOpenSimilarTitleFromDetail() {
+        closeGuide()
+        let card = app.otherElements["deck.topCard"].firstMatch
+        XCTAssertTrue(card.waitForExistence(timeout: 3))
+        card.tap()
+
+        // ONE PIECE（冒険・バトル・ファンタジー）にいちばん近いのは DRAGON BALL（バトル・冒険）
+        let similar = app.scrollViews["detail.similar"]
+        let dragonBall = similar.buttons.containing(NSPredicate(format: "label CONTAINS %@", "DRAGON BALL")).firstMatch
+        for _ in 0..<4 where !dragonBall.isHittable { app.swipeUp() }
+        XCTAssertTrue(dragonBall.waitForExistence(timeout: 3))
+        dragonBall.tap()
+
+        XCTAssertTrue(app.staticTexts["鳥山明"].waitForExistence(timeout: 3), "似ている作品の詳細に進む")
+        app.navigationBars.buttons.element(boundBy: 0).tap()
+        XCTAssertTrue(app.staticTexts["尾田栄一郎"].waitForExistence(timeout: 3))
+    }
 }
