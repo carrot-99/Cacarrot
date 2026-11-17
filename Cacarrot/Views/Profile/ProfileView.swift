@@ -15,31 +15,17 @@ struct ProfileView: View {
         withAnimation(.easeOut(duration: 0.25)) { isShowingGuide = false }
     }
 
-    private func count(_ action: SwipeAction) -> Int {
-        records.filter { $0.action == action }.count
-    }
-
-    /// 好きなジャンル（いいね・スーパーいいねした作品から集計）
-    private var topGenres: [(genre: String, count: Int)] {
-        var counts: [String: Int] = [:]
-        for record in records where record.action != .nope {
-            let weight = record.action == .superLike ? 2 : 1
-            for genre in record.genres { counts[genre, default: 0] += weight }
-        }
-        return counts
-            .sorted { $0.value != $1.value ? $0.value > $1.value : $0.key < $1.key }
-            .prefix(5)
-            .map { ($0.key, $0.value) }
-    }
-
     var body: some View {
+        // 履歴の集計は1回の走査で済ませる（判定が数千件になっても重くならないように）
+        let stats = SwipeStats(records: records)
+        let topGenres = stats.topGenres
         NavigationStack {
             List {
                 Section("スワイプ統計") {
                     HStack {
-                        StatTile(action: .like, value: count(.like))
-                        StatTile(action: .superLike, value: count(.superLike))
-                        StatTile(action: .nope, value: count(.nope))
+                        StatTile(action: .like, value: stats.count(.like))
+                        StatTile(action: .superLike, value: stats.count(.superLike))
+                        StatTile(action: .nope, value: stats.count(.nope))
                     }
                     .listRowInsets(EdgeInsets(top: 12, leading: 12, bottom: 12, trailing: 12))
 
@@ -91,7 +77,7 @@ struct ProfileView: View {
                     NavigationLink {
                         SkippedListView()
                     } label: {
-                        LabeledContent("スキップした作品", value: "\(count(.nope))")
+                        LabeledContent("スキップした作品", value: "\(stats.count(.nope))")
                     }
                     Button("すべての履歴をリセット", role: .destructive) { isConfirmingReset = true }
                         .disabled(records.isEmpty)

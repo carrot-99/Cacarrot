@@ -131,4 +131,31 @@ final class SwipeHistoryStoreTests: XCTestCase {
         XCTAssertEqual(try store.relinkOrphans(to: Array(items)), 0)
         XCTAssertEqual(store.swipedIDs(), [items[2].id])
     }
+
+    func testStatsCountsActionsAndWeightsGenres() {
+        let a = Manga(id: 100, title: "A", author: "", genres: ["バトル", "冒険"], summary: "")
+        let b = Manga(id: 101, title: "B", author: "", genres: ["冒険"], summary: "")
+        let c = Manga(id: 102, title: "C", author: "", genres: ["恋愛"], summary: "")
+        let stats = SwipeStats(records: [
+            SwipeRecord(manga: a, action: .like),
+            SwipeRecord(manga: b, action: .superLike),
+            SwipeRecord(manga: c, action: .nope),
+        ])
+        XCTAssertEqual(stats.count(.like), 1)
+        XCTAssertEqual(stats.count(.superLike), 1)
+        XCTAssertEqual(stats.count(.nope), 1)
+        // 冒険 = 1 + 2、バトル = 1。スキップした恋愛は数えない
+        XCTAssertEqual(stats.topGenres.map(\.genre), ["冒険", "バトル"])
+        XCTAssertEqual(stats.topGenres.map(\.count), [3, 1])
+    }
+
+    func testStatsKeepsOnlyTopGenres() {
+        let genres = (0..<8).map { "G\($0)" }
+        let stats = SwipeStats(records: [
+            SwipeRecord(manga: Manga(id: 1, title: "x", author: "", genres: genres, summary: ""), action: .like)
+        ])
+        XCTAssertEqual(stats.topGenres.count, SwipeStats.topGenreLimit)
+        XCTAssertEqual(stats.topGenres.first?.genre, "G0", "同数なら名前順")
+        XCTAssertEqual(SwipeStats(records: []).count(.like), 0)
+    }
 }
