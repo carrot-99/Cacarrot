@@ -63,6 +63,9 @@ xcodebuild test -project Cacarrot.xcodeproj -scheme Cacarrot -destination 'platf
 ```bash
 cd MangaInfoFetcher && python3 -m unittest discover -s tests -v
 ```
+
+- このテストには、同梱データ `Cacarrot/Resources/manga.json` の形の確認（必須項目・ID の重複・URL が https か）も含まれます。データを作り直したら実行してください。
+- GitHub Actions（`.github/workflows/python-tests.yml`）でも、`MangaInfoFetcher/` か `manga.json` を変更した PR で自動実行されます。アプリのテストは `GoogleService-Info.plist` が必要なため（H3）、まだ自動実行していません。
 - 各 View には `#Preview` があります。プレビューでは `PreviewContainer` がメモリ上の SwiftData と `SampleMangaRepository` を使います。
 
 ## 4. 作品データの更新

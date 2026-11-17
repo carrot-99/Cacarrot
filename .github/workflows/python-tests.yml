@@ -1,0 +1,31 @@
+name: Python tests
+
+# データ取得・変換スクリプト（MangaInfoFetcher）と、同梱データ（manga.json）の確認
+on:
+  pull_request:
+    paths:
+      - "MangaInfoFetcher/**"
+      - "Cacarrot/Resources/manga.json"
+      - ".github/workflows/python-tests.yml"
+  push:
+    branches: [main]
+    paths:
+      - "MangaInfoFetcher/**"
+      - "Cacarrot/Resources/manga.json"
+      - ".github/workflows/python-tests.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      # 標準ライブラリだけで動くので、追加のインストールは不要
+      - name: Run unittest
+        working-directory: MangaInfoFetcher
+        run: python -m unittest discover -s tests -v
