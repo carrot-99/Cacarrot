@@ -8,6 +8,7 @@ enum SwipeSource: String, Sendable {
     case gesture     // カードをスワイプ
     case button      // 下のボタン・VoiceOver
     case detail      // 詳細シートのボタン
+    case widget      // ウィジェットから開いた詳細シートのボタン
 }
 
 /// 記録する利用イベント
@@ -18,6 +19,7 @@ enum AnalyticsEvent: Equatable, Sendable {
     case swipe(action: SwipeAction, source: SwipeSource)
     case undo
     case openDetail
+    case openFromWidget
     case applyGenreFilter(genreCount: Int)
     case setRecommendation(enabled: Bool)
     case deckFinished
@@ -27,6 +29,7 @@ enum AnalyticsEvent: Equatable, Sendable {
         case .swipe: "swipe"
         case .undo: "swipe_undo"
         case .openDetail: "open_detail"
+        case .openFromWidget: "open_from_widget"
         case .applyGenreFilter: "apply_genre_filter"
         case .setRecommendation: "set_recommendation"
         case .deckFinished: "deck_finished"
@@ -38,7 +41,7 @@ enum AnalyticsEvent: Equatable, Sendable {
         case .swipe(let action, let source): ["action": action.rawValue, "source": source.rawValue]
         case .applyGenreFilter(let count): ["genre_count": String(count)]
         case .setRecommendation(let enabled): ["enabled": enabled ? "true" : "false"]
-        case .undo, .openDetail, .deckFinished: [:]
+        case .undo, .openDetail, .openFromWidget, .deckFinished: [:]
         }
     }
 }
